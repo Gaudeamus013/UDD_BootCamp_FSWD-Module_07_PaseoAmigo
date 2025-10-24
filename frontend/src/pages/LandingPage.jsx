@@ -1,63 +1,121 @@
 // ============================================================
-// 🐾 Paseo Amigo – Landing Page de presentación
+// 🐾 Paseo Amigo – Landing Page Oficial (Emergent UI Evolutiva)
 // ============================================================
-// - Hero con animaciones y CTA
-// - Secciones "Servicios", "Galería", "Contacto"
-// - Diseño responsive con Tailwind y framer-motion
+// - Hero visual con fondo real (Cloudinary + fallback local)
+// - Sección "Servicios" modular con animaciones
+// - Sección "Contacto" coherente con el layout global
+// - Modo claro/oscuro reactivo en tiempo real (con MutationObserver)
 // ============================================================
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
+// 🌤️ URLs de Cloudinary optimizadas (usa tus propias rutas con versión)
+const heroImages = {
+  light:
+    "https://res.cloudinary.com/dmnxyqxcz/image/upload/q_auto,f_auto,dpr_auto,c_fill,g_auto/v1761335551/hero-day-light_zhhbxf.jpg",
+  dark:
+    "https://res.cloudinary.com/dmnxyqxcz/image/upload/q_auto,f_auto,dpr_auto,c_fill,g_auto/v1761335551/hero-night-dark_ccgc4f.jpg",
+};
+
+// 💾 Fallback local (asegúrate de tener estos .jpg en /public/assets/img/)
+const localImages = {
+  light: "/assets/img/hero-day-light.jpg",
+  dark: "/assets/img/hero-night-dark.jpg",
+};
+
 export default function LandingPage() {
+  // Estado del tema (día/noche)
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    typeof document !== "undefined"
+      ? document.documentElement.classList.contains("dark")
+      : false
+  );
+
+  // 🔄 Observa cambios dinámicos del modo oscuro
+  useEffect(() => {
+    const html = document.documentElement;
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(html.classList.contains("dark"));
+    });
+    observer.observe(html, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  // 🧩 Fondo dinámico con fallback local
+  const backgroundImage = isDarkMode
+    ? `url('${heroImages.dark}'), url('${localImages.dark}')`
+    : `url('${heroImages.light}'), url('${localImages.light}')`;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100">
-      {/* HERO */}
-      <section className="flex flex-col items-center justify-center text-center py-24 px-6">
-        <motion.h1
-          initial={{ opacity: 0, y: -40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-5xl md:text-6xl font-bold text-blue-700 mb-4"
+    <div className="min-h-screen bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark transition-colors duration-700 ease-in-out">
+      {/* ================= HERO ================= */}
+      <section className="relative flex flex-col items-center justify-center text-center py-28 px-6 overflow-hidden">
+        {/* Imagen de fondo (Cloudinary + fallback local) */}
+        <div
+          className="absolute inset-0 brightness-95 dark:brightness-75 transition-all duration-700"
+          style={{
+            backgroundImage,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
         >
-          Paseo Amigo 🐶
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="text-lg md:text-xl text-gray-600 max-w-2xl"
-        >
-          Servicio profesional de paseos y bienestar para tu mascota.
-          Confía en quienes los tratan como familia ❤️
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-8 flex gap-4"
-        >
-          <Link
-            to="/services"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow"
+          <div className="absolute inset-0 bg-white/40 dark:bg-black/60 backdrop-blur-[2px]" />
+        </div>
+
+        {/* Contenido Hero */}
+        <div className="relative z-10 max-w-3xl">
+          <motion.h1
+            initial={{ opacity: 0, y: -40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl md:text-6xl font-display font-bold mb-6 leading-tight"
           >
-            Ver servicios
-          </Link>
-          <Link
-            to="/gallery"
-            className="bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50"
+            Paseo Amigo 🐶
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
           >
-            Galería
-          </Link>
-        </motion.div>
+            Servicio profesional de paseos y bienestar para tu mascota.
+            Confía en quienes los tratan como familia ❤️
+          </motion.p>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="mt-8 flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link
+              to="/servicios"
+              className="bg-primary-light hover:bg-brand-dark text-white px-8 py-3 rounded-full font-semibold shadow-soft transition-all duration-300 transform hover:scale-105"
+            >
+              Ver servicios
+            </Link>
+
+            <Link
+              to="/gallery"
+              className="border border-primary-light dark:border-primary-dark text-primary-light dark:text-primary-dark px-8 py-3 rounded-full font-semibold hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-all duration-300 transform hover:scale-105"
+            >
+              Galería
+            </Link>
+          </motion.div>
+        </div>
       </section>
 
-      {/* SERVICIOS */}
-      <section className="py-16 px-8 bg-white text-center">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8">
+      {/* ================= SERVICIOS ================= */}
+      <section className="py-20 px-8 bg-white dark:bg-neutral-900 text-center transition-colors duration-700">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-10">
           Nuestros Servicios
         </h2>
-        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {[
             {
               title: "Paseos Cortos",
@@ -78,38 +136,31 @@ export default function LandingPage() {
             <motion.div
               key={i}
               whileHover={{ scale: 1.05 }}
-              className="bg-blue-50 rounded-xl p-6 shadow-sm border border-blue-100"
+              className="bg-secondary-light dark:bg-neutral-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 transition-colors duration-500"
             >
               <div className="text-5xl mb-4">{s.icon}</div>
               <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
-              <p className="text-gray-600">{s.desc}</p>
+              <p className="text-subtext-light dark:text-subtext-dark">
+                {s.desc}
+              </p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* CONTACTO */}
-      <section className="py-16 px-8 text-center bg-blue-50">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">
-          Contáctanos
-        </h2>
-        <p className="text-gray-600 mb-8">
+      {/* ================= CONTACTO ================= */}
+      <section className="py-20 px-8 text-center bg-secondary-light dark:bg-neutral-950 transition-colors duration-700">
+        <h2 className="text-3xl font-bold mb-4">Contáctanos</h2>
+        <p className="text-subtext-light dark:text-subtext-dark mb-8">
           Agenda un paseo o consulta nuestros planes personalizados.
         </p>
         <a
           href="mailto:contacto@paseoamigo.cl"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow"
+          className="inline-block bg-primary-light hover:bg-brand-dark text-white px-8 py-3 rounded-full font-semibold shadow-soft transition-all duration-300 transform hover:scale-105"
         >
           contacto@paseoamigo.cl
         </a>
       </section>
-
-      {/* FOOTER */}
-      <footer className="bg-blue-700 text-white py-6 text-center">
-        <p className="text-sm">
-          © {new Date().getFullYear()} Paseo Amigo — Todos los derechos reservados.
-        </p>
-      </footer>
     </div>
   );
 }
