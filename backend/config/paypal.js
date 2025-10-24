@@ -13,11 +13,11 @@ const environment =
   process.env.PAYPAL_MODE === "live"
     ? new paypal.core.LiveEnvironment(
         process.env.PAYPAL_CLIENT_ID,
-        process.env.PAYPAL_SECRET
+        process.env.PAYPAL_CLIENT_SECRET
       )
     : new paypal.core.SandboxEnvironment(
         process.env.PAYPAL_CLIENT_ID,
-        process.env.PAYPAL_SECRET
+        process.env.PAYPAL_CLIENT_SECRET
       );
 
 // Crea una instancia del cliente PayPal
