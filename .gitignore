@@ -32,6 +32,10 @@ pnpm-lock.yaml
 frontend/.env
 backend/.env
 
+# 🆕 Ignorar todos los .env.* pero mantener el .env.example visible
+.env.*
+!.env.example
+
 # ===============================================
 # 🏗️ BUILDS Y DISTRIBUCIÓN
 # ===============================================
@@ -112,3 +116,7 @@ analysis/
 .vscode/
 .DS_Store
 .env.backup
+
+# 🆕 Excluir archivos locales de Vercel o Render (por seguridad)
+.vercel/
+.render/
