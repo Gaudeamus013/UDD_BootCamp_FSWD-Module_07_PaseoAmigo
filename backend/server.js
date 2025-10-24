@@ -60,6 +60,11 @@ app.use("/api/checkout", checkoutRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+// ============================================
+// 💳 Verificar entorno activo de PayPal
+// ============================================
+console.log(`💳 PayPal SDK inicializado en modo: ${process.env.PAYPAL_MODE?.toUpperCase() || "NO DEFINIDO"}`);
+
 // ==============================
 // 🚀 Arranque del servidor
 // ==============================
