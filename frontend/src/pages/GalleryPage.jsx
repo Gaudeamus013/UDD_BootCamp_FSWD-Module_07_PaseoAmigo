@@ -1,5 +1,5 @@
 import { useState } from "react";
-import UploadImage from "../components/UploadImage";
+import UploadImage from "../components/upload/UploadImage";
 
 const GalleryPage = () => {
   const [images, setImages] = useState([]);
