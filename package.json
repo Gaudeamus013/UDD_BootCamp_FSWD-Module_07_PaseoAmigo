@@ -1,0 +1,18 @@
+{
+  "name": "paseoamigo_final_v3_2025",
+  "version": "1.0.0",
+  "description": "Proyecto MERN para servicio de paseadores de perros – Paseo Amigo.",
+  "author": "Reynaldo Añasco Ruiz – MBA / Ingeniero Civil Informático / Fullstack Dev",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "echo 'Ejecutar desde /backend o /frontend según fase actual'",
+    "dev": "echo 'Modo desarrollo: inicia backend y frontend una vez instalados'"
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "keywords": [],
+  "type": "commonjs"
+}
