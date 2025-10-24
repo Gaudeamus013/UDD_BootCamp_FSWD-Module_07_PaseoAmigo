@@ -1,20 +1,13 @@
-// ============================================================
-// 🐾 Paseo Amigo – Layout global (App.jsx)
-// ============================================================
-// Este componente actúa como layout principal para todas las páginas.
-// Contiene el Header, Footer, animaciones y modo oscuro.
-// ============================================================
+import React from "react"
+import { Outlet, Link, useLocation } from "react-router-dom"
+import { AnimatePresence, motion } from "framer-motion"
+import useScrollHeader from "./hooks/useScrollHeader.jsx"
+import ScrollToTop from "./components/navigation/ScrollToTop.jsx"
+import ThemeSwitch from "./components/ui/ThemeSwitch.jsx"
 
-import React from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
-import useScrollHeader from "./hooks/useScrollHeader.jsx";
-import ScrollToTop from "./components/navigation/ScrollToTop.jsx";
-import ThemeSwitch from "./components/ui/ThemeSwitch.jsx";
-
-export default function App() {
-  const location = useLocation();
-  const isScrolled = useScrollHeader();
+export default function Layout() {
+  const location = useLocation()
+  const isScrolled = useScrollHeader()
 
   return (
     <div className="min-h-screen flex flex-col bg-secondary-light text-text-light dark:bg-secondary-dark dark:text-text-dark transition-colors duration-500 ease-in-out">
@@ -27,7 +20,6 @@ export default function App() {
         }`}
       >
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          {/* LOGO */}
           <Link to="/" className="flex items-center gap-2 overflow-hidden">
             <motion.span
               initial={{ opacity: 0, y: -10 }}
@@ -47,7 +39,7 @@ export default function App() {
             </motion.span>
           </Link>
 
-          {/* NAVBAR + MODO OSCURO */}
+          {/* Navegación + Modo Oscuro */}
           <nav className="flex items-center gap-6 text-sm">
             <Link
               to="/"
@@ -60,9 +52,19 @@ export default function App() {
               Inicio
             </Link>
             <Link
-              to="/gallery"
+              to="/servicios"
               className={`transition-colors duration-200 ${
-                location.pathname === "/gallery"
+                location.pathname === "/servicios"
+                  ? "text-primary-light dark:text-primary-dark font-medium"
+                  : "hover:text-primary-light dark:hover:text-primary-dark"
+              }`}
+            >
+              Servicios
+            </Link>
+            <Link
+              to="/galeria"
+              className={`transition-colors duration-200 ${
+                location.pathname === "/galeria"
                   ? "text-primary-light dark:text-primary-dark font-medium"
                   : "hover:text-primary-light dark:hover:text-primary-dark"
               }`}
@@ -80,15 +82,16 @@ export default function App() {
               Checkout
             </Link>
 
+            {/* Botón de modo oscuro */}
             <ThemeSwitch />
           </nav>
         </div>
       </header>
 
-      {/* SCROLL AUTOMÁTICO */}
+      {/* Scroll top automático */}
       <ScrollToTop />
 
-      {/* TRANSICIÓN ENTRE PÁGINAS */}
+      {/* Transición global */}
       <main className="flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
@@ -111,5 +114,5 @@ export default function App() {
         </div>
       </footer>
     </div>
-  );
+  )
 }

@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class', // Permite el modo oscuro con la clase "dark"
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,35 +8,44 @@ export default {
   theme: {
     extend: {
       colors: {
+        // ✅ Compatibilidad con clases antiguas (bg-brand)
         brand: {
-          DEFAULT: "#16a34a",    // Verde principal (vibrante y natural)
-          light: "#4ade80",      // Verde claro, usado en hover y detalles
-          dark: "#15803d",       // Verde oscuro, usado en botones o header
+          DEFAULT: '#4CAF50',
+          dark: '#388E3C',
+        },
+
+        // 🎨 Paleta oficial del rebranding
+        primary: {
+          light: '#4CAF50',
+          dark: '#81C784',
+        },
+        secondary: {
+          light: '#F5F0E6',
+          dark: '#1E1E1E',
         },
         accent: {
-          DEFAULT: "#f59e0b",    // Naranja cálido (energía, amistad)
-          soft: "#fbbf24",       // Versión más suave para íconos y acentos
+          light: '#FFB300',
+          dark: '#FFCA28',
         },
-        neutral: {
-          light: "#f9fafb",      // Fondo claro global
-          dark: "#1f2937",       // Texto principal o header
+        text: {
+          light: '#212121',
+          dark: '#E0E0E0',
         },
-        gray: {
-          50: "#f9fafb",
-          100: "#f3f4f6",
-          200: "#e5e7eb",
-          700: "#374151",
-          900: "#111827",
+        subtext: {
+          light: '#757575',
+          dark: '#BDBDBD',
         },
       },
-      borderRadius: {
-        DEFAULT: "var(--radius)",
-        xl: "calc(var(--radius) + 4px)",
-      },
+
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui"],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
+      },
+
+      boxShadow: {
+        soft: '0 4px 14px rgba(0, 0, 0, 0.1)',
       },
     },
   },
   plugins: [],
-};
+}
