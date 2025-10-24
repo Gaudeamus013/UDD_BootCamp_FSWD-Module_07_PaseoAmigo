@@ -1,5 +1,5 @@
 // ============================================================
-// 🐾 Paseo Amigo – Servidor Backend (Optimizado)
+// 🐾 Paseo Amigo – Servidor Backend (Optimizado para Render)
 // ============================================================
 
 import express from "express";
@@ -20,13 +20,12 @@ const app = express();
 // 🔗 CORS Dinámico según entorno
 // ==============================
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "*",
+  origin: process.env.CORS_ORIGIN?.split(",") || "*",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.use("/api/users", userRoutes);
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -43,19 +42,15 @@ await connectDB();
 // ==============================
 // 🩺 Ruta de prueba (healthcheck)
 // ==============================
-app.get("/", (req, res) => {
-  res.json({
-    ok: true,
-    name: "Paseo Amigo Backend",
-    version: "1.0.0",
-    environment: process.env.NODE_ENV,
-  });
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", service: "Paseo Amigo Backend" });
 });
 
 // ==============================
 // 🚏 Rutas principales
 // ==============================
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/checkout", checkoutRoutes);
 
@@ -69,6 +64,7 @@ app.use(errorHandler);
 // 🚀 Arranque del servidor
 // ==============================
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
   console.log("===============================================");
   console.log(`🐾 Paseo Amigo Backend iniciado en puerto ${PORT}`);
@@ -76,4 +72,3 @@ app.listen(PORT, () => {
   console.log(`🔐 CORS permitido desde: ${process.env.CORS_ORIGIN}`);
   console.log("===============================================");
 });
-
