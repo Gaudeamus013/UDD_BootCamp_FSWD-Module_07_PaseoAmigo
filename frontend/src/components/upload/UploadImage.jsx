@@ -6,7 +6,7 @@
 // ============================================================
 
 import { useState } from "react";
-import { uploadImageToCloudinary } from "../services/cloudinaryService";
+import { uploadImageToCloudinary } from "../../services/cloudinaryService";
 
 const UploadImage = ({ onUpload }) => {
   const [preview, setPreview] = useState(null);
