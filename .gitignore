@@ -1,8 +1,114 @@
+# ===============================================
+# 🧱 PROYECTO FULLSTACK PASEO AMIGO
+# ===============================================
+# Estructura:
+# - frontend/  → React + Vite + Tailwind + PayPal SDK
+# - backend/   → Node.js + Express + MongoDB + JWT
+# ===============================================
+
+# ===============================================
+# 🌐 NODE & DEPENDENCIAS
+# ===============================================
 node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Archivos de bloqueo de dependencias
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ===============================================
+# ⚙️ ARCHIVOS DE ENTORNO (.env)
+# ===============================================
+# Global
 .env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Específicos (por claridad)
+frontend/.env
+backend/.env
+
+# ===============================================
+# 🏗️ BUILDS Y DISTRIBUCIÓN
+# ===============================================
 dist/
 build/
-logs/
+frontend/dist/
+backend/dist/
+out/
+.cache/
+.tmp/
+vite.config.timestamp-*.mjs
+
+# ===============================================
+# 🧩 IDE Y HERRAMIENTAS
+# ===============================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ===============================================
+# 🧾 LOGS, REPORTES Y TEMPORALES
+# ===============================================
+*.log
+*.tmp
+*.bak
+*.lock
+*.pid
+*.seed
+*.gz
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===============================================
+# 💾 SISTEMAS OPERATIVOS
+# ===============================================
 .DS_Store
-*.zip
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ===============================================
+# 🧪 TESTS Y REPORTES TEMPORALES
+# ===============================================
 coverage/
+reports/
+__tests__/
+__pycache__/
+
+# ===============================================
+# 🎨 ARCHIVOS MULTIMEDIA Y RENDERS INTERNOS
+# (No deben subirse hasta estar optimizados)
+# ===============================================
+assets_dev/
+*.psd
+*.ai
+*.tiff
+*.xcf
+
+# ===============================================
+# 🧠 ARCHIVOS DE ANÁLISIS / DOCUMENTACIÓN INTERNA
+# ===============================================
+analysis/
+*.csv
+*.xlsx
+*.pptx
+*.docx
+*.pdf
+
+# ===============================================
+# ⚡ EXTRA
+# ===============================================
+.vscode/
+.DS_Store
+.env.backup
