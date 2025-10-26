@@ -1,45 +1,168 @@
+/* ============================================================
+🐾 Paseo Amigo – Estilos globales (Versión MVP Limpia)
+===============================================================
+✔️ Integrado con TailwindCSS
+✔️ Scroll suave global
+✔️ Animaciones optimizadas (fade, scroll, microinteracciones)
+✔️ Soporte completo para modo oscuro
+✔️ Sin glass reflection ni efectos distractores
+============================================================ */
+
+/* ==============================
+🌈 BASE TAILWIND
+============================== */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Efecto de desplazamiento suave global */
+/* ============================================================
+🌍 CONFIGURACIÓN GLOBAL
+=========================================================== */
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.6s ease, color 0.6s ease;
 }
 
 body {
-  @apply font-sans bg-gray-100 text-gray-800 antialiased;
-  font-family: 'Inter', sans-serif;
-  line-height: 1.6;
+  @apply bg-secondary-light text-text-light transition-colors duration-500 ease-in-out;
+  font-family: theme("fontFamily.sans");
+  overflow-x: hidden;
+}
+.dark body {
+  @apply bg-secondary-dark text-text-dark;
 }
 
-:root {
-  --radius: 16px;
-  --brand-color: #16a34a; /* tu verde Paseo Amigo */
-  --accent-color: #15803d;
+/* ============================================================
+🧭 SCROLLBAR PERSONALIZADA
+=========================================================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(130, 130, 130, 0.4);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(90, 90, 90, 0.6);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
+/* ============================================================
+📱 MENÚ MÓVIL (overlay)
+=========================================================== */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  z-index: 25;
+  animation: parallaxFadeIn 0.45s ease-out forwards;
+}
+.dark .mobile-menu-overlay {
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================================
+🌙 MODO OSCURO – Transiciones suaves
+=========================================================== */
+html,
+body {
+  transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+/* ============================================================
+🌈 TIPOGRAFÍA Y BOTONES
+=========================================================== */
+h1, h2, h3, h4 {
+  @apply font-display font-semibold tracking-tight;
+}
+p {
+  @apply leading-relaxed;
+}
 .btn {
-  @apply inline-flex items-center justify-center rounded-2xl px-4 py-2 font-medium transition-colors duration-300;
+  @apply px-6 py-2 rounded-full font-semibold transition-transform duration-300;
+}
+.btn:hover {
+  transform: scale(1.05);
+}
+.dark .btn {
+  @apply bg-primary-dark text-white;
 }
 
-.btn-brand {
-  @apply bg-brand text-white hover:bg-brand-dark shadow;
+/* ============================================================
+🪶 TRANSICIONES Y HOVERS
+=========================================================== */
+button.group:hover span {
+  background-color: theme("colors.primary.light");
+}
+.dark button.group:hover span {
+  background-color: theme("colors.primary.dark");
 }
 
-/* Títulos principales */
-h1 {
-  @apply text-4xl md:text-5xl font-bold text-gray-900;
+/* ============================================================
+⚙️ ANIMACIONES UI – Versión MVP Limpia
+===============================================================
+Incluye:
+1️⃣ FadeIn lento (aparición progresiva)
+2️⃣ Scroll continuo (para carruseles futuros)
+3️⃣ Microinteracciones globales
+=========================================================== */
+
+/* ------------------------------------------------------------
+🎬 1. Aparición suave (fadeInSlow)
+------------------------------------------------------------ */
+@keyframes fadeInSlow {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeInSlow {
+  animation: fadeInSlow 1.2s ease-out forwards;
 }
 
-h2 {
-  @apply text-3xl font-semibold text-gray-900;
+/* ------------------------------------------------------------
+💫 2. Scroll continuo (compatibilidad futura)
+------------------------------------------------------------ */
+@keyframes continuousScroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.animate-continuous-scroll {
+  animation: continuousScroll 60s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+.animate-continuous-scroll-slow {
+  animation: continuousScroll 90s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 
-h3 {
-  @apply text-2xl font-medium text-gray-900;
+/* ------------------------------------------------------------
+🪄 3. Microinteracciones globales
+------------------------------------------------------------ */
+img:hover {
+  transform: scale(1.03);
+  transition: transform 0.4s ease;
 }
-
-h4 {
-  @apply text-xl font-medium text-gray-900;
+button,
+a,
+.card {
+  transition: all 0.3s ease-in-out;
 }

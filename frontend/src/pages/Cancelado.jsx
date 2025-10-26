@@ -1,97 +1,100 @@
-import React from "react";
+// ============================================================
+// 🐾 Paseo Amigo – Página de Pago Cancelado (Emergent UI Final)
+// ============================================================
+// - Diseño coherente con Exito.jsx y Checkout.jsx
+// - Modo claro/oscuro con transiciones suaves
+// - Animación de error con framer-motion
+// ============================================================
+
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export default function Cancelado() {
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-16"
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark transition-colors duration-700 ease-in-out px-6">
+
+      {/* ICONO ANIMADO DE ERROR */}
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 border-t-4 border-accent"
+        initial={{ scale: 0, rotate: 180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 120, damping: 15 }}
+        className="bg-red-500/90 dark:bg-red-400/80 rounded-full w-24 h-24 flex items-center justify-center shadow-lg mb-6"
       >
-        <div className="text-center">
-          {/* Icono animado */}
-          <motion.div
-            initial={{ rotate: -15, scale: 0.8 }}
-            animate={{ rotate: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 120 }}
-            className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4"
-          >
-            ❌
-          </motion.div>
-
-          <h1 className="text-3xl font-bold text-gray-800">
-            ¡Pago cancelado!
-          </h1>
-          <p className="mt-2 text-gray-600">
-            No te preocupes,{" "}
-            <span className="font-medium text-brand-dark">
-              tu amigo peludo entiende.
-            </span>{" "}
-            Puedes intentarlo nuevamente cuando quieras 🐾
-          </p>
-
-          {/* Bloque de mensaje adicional */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="mt-6 bg-gray-50 border rounded-xl p-4 text-sm text-gray-700"
-          >
-            <p>
-              Tu pedido no se procesó, pero{" "}
-              <span className="text-brand font-semibold">no se realizó ningún cargo</span>.
-            </p>
-            <p className="mt-1">
-              Si deseas, puedes volver a la página de pago o regresar al inicio.
-            </p>
-          </motion.div>
-
-          {/* Botones de acción */}
-          <motion.div
-            className="mt-8 flex flex-col sm:flex-row gap-3 justify-center"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            <Link
-              to="/checkout"
-              className="btn btn-brand hover:scale-105 transform transition duration-300"
-            >
-              Intentar nuevamente 💳
-            </Link>
-            <Link
-              to="/"
-              className="btn border border-gray-300 hover:bg-gray-100 transition duration-300"
-            >
-              Volver al inicio 🏠
-            </Link>
-          </motion.div>
-
-          {/* Mensaje final */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="text-xs text-gray-500 mt-8"
-          >
-            Si tienes dudas, contáctanos en{" "}
-            <a
-              href="mailto:contacto@paseoamigo.cl"
-              className="underline hover:text-brand-dark"
-            >
-              contacto@paseoamigo.cl
-            </a>
-          </motion.p>
-        </div>
+        <motion.svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="white"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-12 h-12"
+        >
+          <motion.line
+            x1="18"
+            y1="6"
+            x2="6"
+            y2="18"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ delay: 0.4, duration: 0.8, ease: "easeInOut" }}
+          />
+          <motion.line
+            x1="6"
+            y1="6"
+            x2="18"
+            y2="18"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ delay: 0.6, duration: 0.8, ease: "easeInOut" }}
+          />
+        </motion.svg>
       </motion.div>
-    </motion.section>
+
+      {/* TÍTULO */}
+      <motion.h1
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-3 text-center"
+      >
+        Pago cancelado ❌
+      </motion.h1>
+
+      {/* TEXTO PRINCIPAL */}
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.7 }}
+        className="text-gray-700 dark:text-gray-300 text-center max-w-xl leading-relaxed mb-8"
+      >
+        La transacción fue cancelada antes de completarse.  
+        Si fue un error, puedes intentarlo nuevamente o contactarnos para asistencia.
+      </motion.p>
+
+      {/* BOTÓN VOLVER */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        <Link
+          to="/checkout"
+          className="bg-primary-light hover:bg-brand-dark text-white font-semibold px-8 py-3 rounded-full shadow-soft transition-all duration-300 transform hover:scale-105"
+        >
+          Intentar nuevamente
+        </Link>
+      </motion.div>
+
+      {/* FOOTER */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+        className="mt-16 text-sm text-gray-600 dark:text-gray-400 text-center"
+      >
+        © {new Date().getFullYear()} Paseo Amigo — Todos los derechos reservados 🐾
+      </motion.footer>
+    </div>
   );
 }
