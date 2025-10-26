@@ -1,51 +1,70 @@
-/** @type {import('tailwindcss').Config} */
+// ============================================================
+// 🐾 Paseo Amigo – Configuración TailwindCSS (Optimizada)
+// ============================================================
+// ✨ Incluye:
+// - Soporte para modo oscuro basado en clase ("dark").
+// - Extensión de colores de marca (primary, secondary, text).
+// - Fuentes personalizadas ("Inter" y "Poppins").
+// - Plugins oficiales instalados (forms, typography, aspect-ratio).
+// ============================================================
+
+import forms from "@tailwindcss/forms";
+import typography from "@tailwindcss/typography";
+import aspectRatio from "@tailwindcss/aspect-ratio";
+
 export default {
-  darkMode: 'class', // Permite el modo oscuro con la clase "dark"
+  // ============================================================
+  // 🌙 MODO OSCURO
+  // ============================================================
+  darkMode: "class",
+
+  // ============================================================
+  // 📁 RUTAS A ARCHIVOS (purga inteligente)
+  // ============================================================
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+
+  // ============================================================
+  // 🎨 THEME PERSONALIZADO – PALETA Y FUENTES
+  // ============================================================
   theme: {
     extend: {
       colors: {
-        // ✅ Compatibilidad con clases antiguas (bg-brand)
-        brand: {
-          DEFAULT: '#4CAF50',
-          dark: '#388E3C',
-        },
-
-        // 🎨 Paleta oficial del rebranding
         primary: {
-          light: '#4CAF50',
-          dark: '#81C784',
+          light: "#F59E0B",  // Ámbar cálido – energía y confianza
+          DEFAULT: "#F59E0B",
+          dark: "#D97706",
         },
         secondary: {
-          light: '#F5F0E6',
-          dark: '#1E1E1E',
-        },
-        accent: {
-          light: '#FFB300',
-          dark: '#FFCA28',
+          light: "#FFF8E7",  // Fondo cálido y limpio
+          dark: "#18181B",   // Fondo oscuro elegante
         },
         text: {
-          light: '#212121',
-          dark: '#E0E0E0',
+          light: "#1F2937",  // Gris oscuro legible
+          dark: "#E5E7EB",   // Gris claro en modo oscuro
         },
-        subtext: {
-          light: '#757575',
-          dark: '#BDBDBD',
+        brand: {
+          light: "#FACC15",
+          dark: "#EAB308",
         },
       },
-
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Poppins', 'sans-serif'],
+        sans: ["Inter", "ui-sans-serif", "system-ui"],
+        display: ["Poppins", "Inter", "ui-sans-serif"],
       },
-
       boxShadow: {
-        soft: '0 4px 14px rgba(0, 0, 0, 0.1)',
+        soft: "0 4px 20px rgba(0,0,0,0.05)",
+      },
+      borderRadius: {
+        "2xl": "1rem",
       },
     },
   },
-  plugins: [],
-}
+
+  // ============================================================
+  // 🔌 PLUGINS OFICIALES
+  // ============================================================
+  plugins: [forms, typography, aspectRatio],
+};
