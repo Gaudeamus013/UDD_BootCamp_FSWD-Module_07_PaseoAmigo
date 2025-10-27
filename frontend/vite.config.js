@@ -1,112 +1,83 @@
 // ============================================================
-// 🐾 Paseo Amigo – Configuración Vite (Frontend)
+// 🐾 Paseo Amigo – Vite Config (v1.0.2 Final MVP 2025)
 // ============================================================
-// 📄 Entorno optimizado para desarrollo local y despliegue
-// en plataformas modernas (Vercel, Render, Netlify).
-//
-// Incluye:
-// - Alias "@" → simplifica imports desde /src
-// - Soporte React con Fast Refresh
-// - Configuración de servidor accesible por red local
-// - Build optimizado con separación de librerías pesadas
-// - Acceso controlado a variables de entorno
-// - Precarga de dependencias críticas
+// 🚀 Configuración optimizada para:
+//    - Vercel (frontend) + Render (backend)
+//    - React + TailwindCSS + Framer Motion
+//    - Cloudinary y recursos locales
 // ============================================================
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-// ============================================================
-// 🔧 CONFIGURACIÓN BASE
-// ============================================================
 export default defineConfig({
-  // ------------------------------------------------------------
-  // 🧩 PLUGINS ACTIVOS
-  // ------------------------------------------------------------
-  // @vitejs/plugin-react → habilita JSX, Fast Refresh y mejoras
-  // de rendimiento específicas para entornos React.
+  // ============================================================
+  // ⚙️ Plugins base
+  // ============================================================
   plugins: [react()],
 
-  // ------------------------------------------------------------
-  // 🌐 BASE DEL PROYECTO
-  // ------------------------------------------------------------
-  // En Vercel, Render o cualquier hosting moderno, la base debe ser "/".
-  // Si el proyecto se publica en subcarpetas (por ejemplo GitHub Pages),
-  // reemplazar por: base: "/nombre_proyecto/".
-  base: "/",
-
-  // ------------------------------------------------------------
-  // 🧭 ALIAS DE RUTA
-  // ------------------------------------------------------------
-  // Permite usar "@" como raíz del directorio /src
-  // Ejemplo de uso:
-  // import ExperienceSection from "@/components/experience/ExperienceSection";
+  // ============================================================
+  // 📁 Alias de rutas limpias
+  // ============================================================
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
 
-  // ------------------------------------------------------------
-  // 🧪 SERVIDOR DE DESARROLLO
-  // ------------------------------------------------------------
-  // Configuración ideal para entorno de desarrollo local:
-  // - Permite pruebas desde dispositivos móviles en red local.
-  // - Abre el navegador automáticamente.
+  // ============================================================
+  // 🌍 Configuración del servidor de desarrollo
+  // ============================================================
   server: {
-    host: true,        // Permite acceso desde IP local (ej. 192.168.x.x)
-    port: 5173,        // Puerto por defecto de Vite
-    open: true,        // Abre el navegador automáticamente
+    port: 5173,
+    open: true,
+    cors: true,
+    proxy: {
+      // 🔗 Redirección automática al backend en Render
+      "/api": {
+        target:
+          process.env.VITE_API_BASE_URL ||
+          "https://udd-bootcamp-fswd-module-07-paseoamigo.onrender.com",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 
-  // ------------------------------------------------------------
-  // ⚙️ CONFIGURACIÓN DE COMPILACIÓN (BUILD)
-  // ------------------------------------------------------------
-  // Optimiza el tamaño de bundle y facilita el cacheo.
+  // ============================================================
+  // 🧱 Configuración de build para producción
+  // ============================================================
   build: {
-    outDir: "dist",               // Carpeta de salida
-    sourcemap: false,             // Deshabilita mapas de fuente (más liviano)
-    chunkSizeWarningLimit: 600,   // Eleva límite de advertencia (para librerías grandes)
-    cssCodeSplit: true,           // Divide el CSS por componente
-    assetsInlineLimit: 4096,      // Incrusta assets pequeños (<4 KB) en el bundle
+    outDir: "dist",
+    emptyOutDir: true,
+    sourcemap: false,
+    minify: "esbuild",
 
-    // ------------------------------------------------------------
-    // 📦 CONFIGURACIÓN ROLLUP
-    // ------------------------------------------------------------
-    // Divide dependencias pesadas en chunks separados
-    // para mejorar el cache y el tiempo de carga inicial.
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ["react", "react-dom"],
-          vendor: ["framer-motion", "embla-carousel-react"],
+        manualChunks(id) {
+          // 📦 Separación lógica de dependencias grandes (optimiza cache)
+          if (id.includes("node_modules")) {
+            if (id.includes("framer-motion")) return "motion";
+            if (id.includes("react-router-dom")) return "router";
+            if (id.includes("embla-carousel")) return "carousel";
+            return "vendor";
+          }
         },
       },
     },
   },
 
-  // ------------------------------------------------------------
-  // 🔒 VARIABLES DE ENTORNO
-  // ------------------------------------------------------------
-  // Permite acceder a variables definidas en archivos .env,
-  // como VITE_API_URL o VITE_CLOUDINARY_URL.
+  // ============================================================
+  // 📦 Manejo seguro de assets
+  // ============================================================
+  assetsInclude: ["**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.svg", "**/*.gif"],
+
+  // ============================================================
+  // 🌐 Configuración global para Cloudinary y fetch remoto
+  // ============================================================
   define: {
     "process.env": process.env,
-  },
-
-  // ------------------------------------------------------------
-  // 🌈 OPTIMIZACIÓN DE DEPENDENCIAS
-  // ------------------------------------------------------------
-  // Precarga librerías críticas para reducir el tiempo de arranque
-  // del servidor de desarrollo.
-  optimizeDeps: {
-    include: [
-      "react",
-      "react-dom",
-      "framer-motion",
-      "embla-carousel-react",
-      "embla-carousel-autoplay",
-    ],
   },
 });

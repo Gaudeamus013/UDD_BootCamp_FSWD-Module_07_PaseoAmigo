@@ -1,11 +1,10 @@
 /* ============================================================
-🐾 Paseo Amigo – Estilos globales (Versión MVP Limpia)
+🐾 Paseo Amigo – Estilos globales (index.css)
 ===============================================================
-✔️ Integrado con TailwindCSS
-✔️ Scroll suave global
-✔️ Animaciones optimizadas (fade, scroll, microinteracciones)
-✔️ Soporte completo para modo oscuro
-✔️ Sin glass reflection ni efectos distractores
+✔️ Integrado con TailwindCSS 3+
+✔️ Scroll suave global + animaciones premium
+✔️ Compatibilidad moderna (sin warnings)
+✔️ Comentado para mantenimiento profesional
 ============================================================ */
 
 /* ==============================
@@ -16,12 +15,15 @@
 @tailwind utilities;
 
 /* ============================================================
-🌍 CONFIGURACIÓN GLOBAL
+🌍 CONFIGURACIÓN GLOBAL HTML + BODY
 =========================================================== */
 html {
   scroll-behavior: smooth;
+  text-size-adjust: 100%; /* ✅ moderno y sin warnings */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: theme("fontFamily.sans");
+  font-size: 16px;
   transition: background-color 0.6s ease, color 0.6s ease;
 }
 
@@ -29,9 +31,23 @@ body {
   @apply bg-secondary-light text-text-light transition-colors duration-500 ease-in-out;
   font-family: theme("fontFamily.sans");
   overflow-x: hidden;
+  min-height: 100vh;
+  line-height: 1.6;
 }
+
 .dark body {
   @apply bg-secondary-dark text-text-dark;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
 }
 
 /* ============================================================
@@ -53,6 +69,42 @@ body {
 }
 
 /* ============================================================
+💎 EFECTO PARALLAX PREMIUM (overlay móvil)
+=========================================================== */
+@keyframes parallaxFadeIn {
+  0% {
+    backdrop-filter: blur(0px);
+    background-color: rgba(0, 0, 0, 0);
+    transform: translateY(-5%);
+    opacity: 0;
+  }
+  100% {
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.45);
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+@keyframes parallaxFadeOut {
+  0% {
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.45);
+    opacity: 1;
+  }
+  100% {
+    backdrop-filter: blur(0px);
+    background-color: rgba(0, 0, 0, 0);
+    opacity: 0;
+  }
+}
+.animate-parallax-fade-in {
+  animation: parallaxFadeIn 0.45s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+.animate-parallax-fade-out {
+  animation: parallaxFadeOut 0.4s ease-in-out forwards;
+}
+
+/* ============================================================
 📱 MENÚ MÓVIL (overlay)
 =========================================================== */
 .mobile-menu-overlay {
@@ -68,11 +120,13 @@ body {
 }
 
 /* ============================================================
-🌙 MODO OSCURO – Transiciones suaves
+🪶 TRANSICIONES Y HOVERS
 =========================================================== */
-html,
-body {
-  transition: background-color 0.6s ease, color 0.6s ease;
+button.group:hover span {
+  background-color: theme("colors.primary.light");
+}
+.dark button.group:hover span {
+  background-color: theme("colors.primary.dark");
 }
 
 /* ============================================================
@@ -95,72 +149,78 @@ p {
 }
 
 /* ============================================================
-🪶 TRANSICIONES Y HOVERS
-=========================================================== */
-button.group:hover span {
-  background-color: theme("colors.primary.light");
-}
-.dark button.group:hover span {
-  background-color: theme("colors.primary.dark");
-}
-
-/* ============================================================
-⚙️ ANIMACIONES UI – Versión MVP Limpia
+⚙️ ANIMACIONES UI PREMIUM – Paseo Amigo
 ===============================================================
 Incluye:
-1️⃣ FadeIn lento (aparición progresiva)
-2️⃣ Scroll continuo (para carruseles futuros)
-3️⃣ Microinteracciones globales
+1️⃣ Carrusel continuo (desktop + mobile)
+2️⃣ Brillo dinámico diagonal (Glass Reflection)
+3️⃣ Scroll Reveal (fade + slide)
+4️⃣ Microinteracciones globales
 =========================================================== */
 
 /* ------------------------------------------------------------
-🎬 1. Aparición suave (fadeInSlow)
------------------------------------------------------------- */
-@keyframes fadeInSlow {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-fadeInSlow {
-  animation: fadeInSlow 1.2s ease-out forwards;
-}
-
-/* ------------------------------------------------------------
-💫 2. Scroll continuo (compatibilidad futura)
------------------------------------------------------------- */
+🎞️ 1. Carrusel continuo (GPU Accelerated)
+------------------------------------------------------------- */
 @keyframes continuousScroll {
   from {
-    transform: translate3d(0, 0, 0);
+    transform: translateX(0);
   }
   to {
-    transform: translate3d(-50%, 0, 0);
+    transform: translateX(-50%);
   }
 }
+
+/* Desktop / pantallas estándar */
 .animate-continuous-scroll {
   animation: continuousScroll 60s linear infinite;
   will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
 }
+
+/* Mobile / tablets: velocidad reducida */
 .animate-continuous-scroll-slow {
   animation: continuousScroll 90s linear infinite;
   will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
 }
 
 /* ------------------------------------------------------------
-🪄 3. Microinteracciones globales
------------------------------------------------------------- */
+✨ 2. Brillo dinámico diagonal (Glass Reflection)
+------------------------------------------------------------- */
+@keyframes glassShine {
+  0% {
+    transform: translateX(-120%) translateY(100%) rotate(45deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(100%) translateY(-100%) rotate(45deg);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateX(200%) translateY(-200%) rotate(45deg);
+    opacity: 0;
+  }
+}
+.before\\:animate-glass-shine::before {
+  animation: glassShine 8s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------
+💫 3. Scroll Reveal (Fade + Slide)
+------------------------------------------------------------- */
+/* Se maneja principalmente con Framer Motion dentro de los componentes JSX.
+   Este bloque se deja como respaldo si se requiere CSS puro.
+*/
+
+/* ------------------------------------------------------------
+🪄 4. Microinteracciones globales
+------------------------------------------------------------- */
 img:hover {
   transform: scale(1.03);
   transition: transform 0.4s ease;
 }
+
 button,
 a,
 .card {
