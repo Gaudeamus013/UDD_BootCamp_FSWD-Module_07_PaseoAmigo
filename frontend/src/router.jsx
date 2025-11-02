@@ -10,9 +10,11 @@
 
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
+
+// 🌐 Páginas principales
 import Home from "./pages/Home.jsx";
 import Servicios from "./pages/Servicios.jsx";
-import Galeria from "./pages/Galeria.jsx";
+import GalleryPage from "./pages/GalleryPage.jsx"; // ✅ Corregido (antes Galeria.jsx)
 import Experiencia from "./pages/Experiencia.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import Exito from "./pages/Exito.jsx";
@@ -20,10 +22,13 @@ import Cancelado from "./pages/Cancelado.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import PaymentPage from "./pages/PaymentPage.jsx";
 
-// ✅ Nuevas rutas de autenticación
+// 🔐 Páginas de autenticación
 import LoginPage from "./pages/Auth/LoginPage.jsx";
 import RegisterPage from "./pages/Auth/RegisterPage.jsx";
 
+// ============================================================
+// 🚀 Configuración del enrutador principal
+// ============================================================
 export default createBrowserRouter([
   {
     path: "/",
@@ -31,7 +36,7 @@ export default createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: "servicios", element: <Servicios /> },
-      { path: "galeria", element: <Galeria /> },
+      { path: "galeria", element: <GalleryPage /> }, // ✅ Actualizado
       { path: "experiencia", element: <Experiencia /> },
       { path: "checkout", element: <Checkout /> },
       { path: "pago", element: <PaymentPage /> },
