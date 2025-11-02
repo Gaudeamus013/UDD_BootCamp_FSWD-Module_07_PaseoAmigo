@@ -7,11 +7,12 @@
 // - helmet: cabeceras seguras HTTP.
 // - express-rate-limit: protege endpoints contra abuso.
 // - morgan: logs legibles en desarrollo.
-// - CORS dinámico: lista separada por comas en CORS_ORIGIN.
+// - CORS dinámico: toma CORS_ORIGIN (coma-separado) o usa lista por defecto.
 // - Conexión MongoDB via connectDB().
 // - Rutas: authRoutes, productRoutes, checkoutRoutes, userRoutes.
 // - Middleware de errores: notFound, errorHandler.
 // - Compatible con entorno Sandbox/Producción PayPal.
+// - Ruta raíz "/" (y HEAD "/") informativa para evitar 404 en Render.
 // ============================================================
 
 import express from "express";
@@ -47,8 +48,8 @@ const app = express();
 // 🧩 Middlewares base
 // ==============================
 app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: false })); // procesamiento seguro de formularios simples
-app.use(morgan("dev")); // logging de solicitudes HTTP
+app.use(express.urlencoded({ extended: false })); // formularios simples
+app.use(morgan("dev")); // logging HTTP legible
 
 // ==============================
 // 🛡️ Seguridad HTTP con Helmet
@@ -58,16 +59,23 @@ app.use(helmet());
 // ==============================
 // 🔗 CORS Configuración completa
 // ==============================
-
-const allowedOrigins = [
+// Toma CORS_ORIGIN si está seteado (lista separada por comas), si no usa valores por defecto.
+const defaultAllowedOrigins = [
   "http://localhost:5173",
   "https://paseoamigo.vercel.app",
   "https://udd-bootcamp-fswd-module-07-paseoamigo.onrender.com",
 ];
 
+const envAllowed = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((s) => s.trim()).filter(Boolean)
+  : null;
+
+const allowedOrigins = envAllowed && envAllowed.length > 0 ? envAllowed : defaultAllowedOrigins;
+
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Permite herramientas como curl o llamadas del mismo host (sin origin)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -81,7 +89,6 @@ app.use(
   })
 );
 
-
 // ==============================
 // ⚙️ Rate Limiter: Control de Peticiones
 // ==============================
@@ -91,8 +98,7 @@ const limiter = rateLimit({
   max: 100,
   message: {
     success: false,
-    message:
-      "Demasiadas solicitudes desde esta IP. Intenta nuevamente más tarde.",
+    message: "Demasiadas solicitudes desde esta IP. Intenta nuevamente más tarde.",
   },
 });
 app.use(limiter);
@@ -109,6 +115,22 @@ app.use(limiter);
     process.exit(1);
   }
 })();
+
+// ==============================
+// 📍 Ruta raíz informativa (evita 404 en Render)
+// ==============================
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    service: "Paseo Amigo Backend",
+    status: "online",
+    mode: process.env.NODE_ENV || "development",
+  });
+});
+
+// (Opcional) HEAD / para sondas que sólo chequean encabezados
+app.head("/", (_req, res) => {
+  res.status(200).end();
+});
 
 // ==============================
 // 🩺 Healthcheck
@@ -139,7 +161,8 @@ app.use(errorHandler);
 // ==============================
 // 🚀 Arranque del Servidor
 // ==============================
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4000; // Render define PORT; local usa 4000
 app.listen(PORT, () => {
   console.log(`🚀 Servidor ejecutándose en el puerto ${PORT}`);
 });
+    
