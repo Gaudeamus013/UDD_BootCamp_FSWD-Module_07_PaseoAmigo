@@ -1,47 +1,47 @@
 // ============================================================
-// 🗺️ Rutas principales del proyecto Paseo Amigo
+// 🧭 router.jsx – Enrutador Principal Paseo Amigo
 // ============================================================
-// Controla las páginas de alto nivel y sus rutas con React Router
+// Configura las rutas públicas y protegidas del proyecto
+// Incluye:
+// - Autenticación (Login/Register)
+// - Checkout (requiere sesión)
+// - Páginas de estado (Éxito/Cancelado)
 // ============================================================
 
-import React from "react";
 import { createBrowserRouter } from "react-router-dom";
-
-// 🌐 Layout global y contextos
 import App from "./App.jsx";
-
-// 🧭 Páginas principales
-import LandingPage from "./pages/LandingPage.jsx";
+import Home from "./pages/Home.jsx";
 import Servicios from "./pages/Servicios.jsx";
-import GalleryPage from "./pages/GalleryPage.jsx"; // ✅ nombre correcto
-import CartPage from "./pages/CartPage.jsx";
+import Galeria from "./pages/Galeria.jsx";
+import Experiencia from "./pages/Experiencia.jsx";
 import Checkout from "./pages/Checkout.jsx";
-import PaymentPage from "./pages/PaymentPage.jsx"; 
 import Exito from "./pages/Exito.jsx";
 import Cancelado from "./pages/Cancelado.jsx";
+import CartPage from "./pages/CartPage.jsx";
+import PaymentPage from "./pages/PaymentPage.jsx";
 
-// 👤 Autenticación
+// ✅ Nuevas rutas de autenticación
 import LoginPage from "./pages/Auth/LoginPage.jsx";
 import RegisterPage from "./pages/Auth/RegisterPage.jsx";
 
-export const router = createBrowserRouter([
+export default createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <LandingPage /> },
+      { index: true, element: <Home /> },
       { path: "servicios", element: <Servicios /> },
-      { path: "galeria", element: <GalleryPage /> },
-      { path: "carrito", element: <CartPage /> },
+      { path: "galeria", element: <Galeria /> },
+      { path: "experiencia", element: <Experiencia /> },
       { path: "checkout", element: <Checkout /> },
       { path: "pago", element: <PaymentPage /> },
+      { path: "cart", element: <CartPage /> },
       { path: "exito", element: <Exito /> },
       { path: "cancelado", element: <Cancelado /> },
-      { path: "login", element: <LoginPage /> },
-      { path: "register", element: <RegisterPage /> },
+
+      // 🔐 Autenticación
+      { path: "auth/login", element: <LoginPage /> },
+      { path: "auth/register", element: <RegisterPage /> },
     ],
   },
 ]);
-
-export default router;
-  
