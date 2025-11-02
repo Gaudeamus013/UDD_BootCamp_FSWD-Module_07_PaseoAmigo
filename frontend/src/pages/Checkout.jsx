@@ -1,198 +1,129 @@
-// ============================================================
-// 💳 Paseo Amigo – Checkout.jsx (Versión Final con /paypal/)
-// ============================================================
-// - Integra PayPal Sandbox funcionalmente.
-// - Compatible con backend en Render.
-// - Validación automática de variables VITE_*.
-// - Fallback seguro ante errores o mala configuración.
-// ============================================================
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../lib/api";
+import ToastAlert from "../components/ui/ToastAlert.jsx";
 
-import React, { useEffect, useState } from "react";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-
-// ============================================================
-// ⚙️ FUNCIÓN DE VALIDACIÓN DE VARIABLES DE ENTORNO
-// ============================================================
-// Verifica que las variables del .env.local estén disponibles
-// antes de cargar el SDK de PayPal.
-const checkEnvVars = () => {
-  const requiredVars = [
-    "VITE_API_BASE_URL",
-    "VITE_PAYPAL_CLIENT_ID",
-    "VITE_PAYPAL_CURRENCY",
-  ];
-
-  const missing = requiredVars.filter((v) => !import.meta.env[v]);
-  if (missing.length > 0) {
-    console.error("❌ Faltan variables de entorno:", missing);
-    alert(
-      `Configuración incompleta.\nFaltan variables: ${missing.join(
-        ", "
-      )}\n\nVerifica tu archivo .env.local o las variables en Vercel.`
-    );
-    return false;
-  }
-
-  console.group("✅ Variables de entorno detectadas (Checkout.jsx)");
-  console.log("🌍 API BASE URL:", import.meta.env.VITE_API_BASE_URL);
-  console.log("💳 PAYPAL CLIENT ID:", import.meta.env.VITE_PAYPAL_CLIENT_ID);
-  console.log("💵 MONEDA:", import.meta.env.VITE_PAYPAL_CURRENCY);
-  console.groupEnd();
-
-  return true;
-};
-
-// ============================================================
-// 💳 COMPONENTE PRINCIPAL: CHECKOUT
-// ============================================================
 export default function Checkout() {
-  const [isReady, setIsReady] = useState(false);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [cart, setCart] = useState([]);
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("info");
+  const [loading, setLoading] = useState(false);
 
-  // -----------------------------------------------
-  // Validar variables VITE_* antes de inicializar PayPal
-  // -----------------------------------------------
   useEffect(() => {
-    const valid = checkEnvVars();
-    setIsReady(valid);
+    const stored = localStorage.getItem("cart");
+    if (stored) setCart(JSON.parse(stored));
   }, []);
 
-  // -----------------------------------------------
-  // Fallback visual si falta configuración o envs
-  // -----------------------------------------------
-  if (!isReady) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-secondary-light dark:bg-secondary-dark text-center px-6">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-          Configuración pendiente ⚙️
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 max-w-lg">
-          No se encontraron las variables de entorno necesarias. <br />
-          Revisa tu archivo <strong>.env.local</strong> o las variables en{" "}
-          <strong>Vercel / Render</strong>.
-        </p>
-      </div>
-    );
-  }
+  const handleCheckout = async () => {
+    if (cart.length === 0) {
+      setType("warning");
+      setMessage("Tu carrito está vacío.");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
 
-  // ============================================================
-  // 🔗 VARIABLES DE ENTORNO SEGURAS
-  // ============================================================
-  const API_BASE = import.meta.env.VITE_API_BASE_URL;
-  const CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID;
-  const CURRENCY = import.meta.env.VITE_PAYPAL_CURRENCY || "USD";
-
-  // ============================================================
-  // 🧩 FUNCIÓN SEGURO PARA FETCH (con fallback de error)
-  // ============================================================
-  const safeFetch = async (url, options) => {
     try {
-      const res = await fetch(url, options);
-      if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-      return await res.json();
-    } catch (err) {
-      console.error("🚨 Error en safeFetch:", err);
-      setError("No se pudo conectar con el servidor. Intenta más tarde.");
-      throw err;
+      setLoading(true);
+      setType("info");
+      setMessage("Conectando con PayPal...");
+
+      const response = await fetch(`${API_BASE_URL}/api/checkout/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.id) {
+        throw new Error("No se pudo crear la orden de pago");
+      }
+
+      const approveLink = data.links.find((link) => link.rel === "approve");
+      if (approveLink) {
+        window.location.href = approveLink.href;
+      } else {
+        throw new Error("No se encontró el enlace de aprobación.");
+      }
+
+      setType("success");
+      setMessage("Pago realizado correctamente.");
+      setTimeout(() => setMessage(""), 2500);
+    } catch (error) {
+      console.error("Error en el pago:", error);
+      setType("error");
+      setMessage("Error al procesar el pago. Intenta nuevamente.");
+      setTimeout(() => setMessage(""), 3000);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ============================================================
-  // 💰 RENDER PRINCIPAL DE CHECKOUT
-  // ============================================================
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-secondary-light dark:bg-secondary-dark text-center px-6 py-20">
-      {/* ---------------------- Encabezado ---------------------- */}
-      <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900 dark:text-gray-100 mb-6">
-        Pago Seguro con PayPal
+    <section className="min-h-screen flex flex-col items-center py-16 px-6 bg-gradient-to-b from-transparent to-white/5 dark:to-black/20 transition-colors">
+      <ToastAlert message={message} type={type} />
+
+      <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-gray-100">
+        Finalizar compra 💳
       </h1>
 
-      <p className="text-gray-600 dark:text-gray-400 mb-10 max-w-xl">
-        Realiza tu pago con confianza a través de PayPal Sandbox. <br />
-        Al completar el pago, serás redirigido automáticamente al estado
-        correspondiente (éxito o cancelación).
-      </p>
-
-      {/* =======================================================
-          💳 PAYPAL SCRIPT PROVIDER
-          Carga el SDK con tu Client ID y moneda seleccionada
-      ========================================================== */}
-      <PayPalScriptProvider
-        options={{
-          "client-id": CLIENT_ID,
-          currency: CURRENCY,
-          intent: "capture",
-        }}
-      >
-        <div className="bg-white/80 dark:bg-neutral-900/80 p-6 rounded-2xl shadow-md border border-gray-200 dark:border-neutral-700 w-full max-w-md">
-          <PayPalButtons
-            style={{
-              layout: "vertical",
-              color: "gold",
-              shape: "rect",
-              label: "paypal",
-            }}
-            // ------------------------------------------------------
-            // 🧾 CREAR ORDEN (ruta con /paypal/)
-            // ------------------------------------------------------
-            createOrder={async () => {
-              try {
-                const data = await safeFetch(
-                  `${API_BASE}/api/checkout/paypal/create-order`,
-                  { method: "POST" }
-                );
-                console.log("🧾 Orden creada:", data);
-                return data.id;
-              } catch {
-                return null;
-              }
-            }}
-            // ------------------------------------------------------
-            // 💰 CAPTURAR ORDEN (ruta con /paypal/)
-            // ------------------------------------------------------
-            onApprove={async (data) => {
-              try {
-                const result = await safeFetch(
-                  `${API_BASE}/api/checkout/paypal/capture-order/${data.orderID}`,
-                  { method: "POST" }
-                );
-                console.log("✅ Pago completado:", result);
-
-                if (result.status === "COMPLETED") {
-                  window.location.href = "/exito";
-                } else {
-                  window.location.href = "/cancelado";
-                }
-              } catch {
-                window.location.href = "/cancelado";
-              }
-            }}
-            // ------------------------------------------------------
-            // ❌ CANCELACIÓN DEL USUARIO
-            // ------------------------------------------------------
-            onCancel={() => {
-              console.warn("🟡 Compra cancelada por el usuario");
-              window.location.href = "/cancelado";
-            }}
-            // ------------------------------------------------------
-            // ⚠️ ERROR GLOBAL DEL SDK PAYPAL
-            // ------------------------------------------------------
-            onError={(err) => {
-              console.error("💥 Error global en PayPal SDK:", err);
-              setError("Ocurrió un problema al procesar el pago.");
-            }}
-          />
+      {cart.length === 0 ? (
+        <div className="text-center text-gray-700 dark:text-gray-300">
+          <p className="mb-4">Tu carrito está vacío</p>
+          <button
+            onClick={() => navigate("/servicios")}
+            className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition"
+          >
+            Ver servicios
+          </button>
         </div>
-      </PayPalScriptProvider>
+      ) : (
+        <div className="max-w-3xl w-full bg-white/70 dark:bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-8">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
+            Resumen del pedido
+          </h2>
 
-      {/* ============================================================
-          🧩 FALLBACK DE ERROR VISUAL
-      ============================================================ */}
-      {error && (
-        <div className="mt-6 bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 px-4 py-2 rounded-lg shadow">
-          {error}
+          <div className="flex flex-col gap-4 mb-6">
+            {cart.map((item) => (
+              <div
+                key={item._id}
+                className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-3"
+              >
+                <span className="text-gray-900 dark:text-gray-100 font-medium">
+                  {item.name} ({item.quantity}x)
+                </span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                  {(item.price * item.quantity).toLocaleString("es-CL")} CLP
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-between items-center text-xl font-semibold border-t border-gray-200 dark:border-gray-700 pt-4 mb-8">
+            <span>Total</span>
+            <span className="text-emerald-600 dark:text-emerald-400">
+              {total.toLocaleString("es-CL")} CLP
+            </span>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleCheckout}
+              disabled={loading}
+              className={`px-8 py-3 rounded-xl text-white font-semibold transition-colors duration-300 ${
+                loading
+                  ? "bg-emerald-400 cursor-not-allowed"
+                  : "bg-emerald-500 hover:bg-emerald-600"
+              }`}
+            >
+              {loading ? "Procesando pago..." : "Pagar con PayPal 💰"}
+            </button>
+          </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

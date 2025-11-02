@@ -1,26 +1,22 @@
 // ============================================================
 // 🐾 Paseo Amigo – Layout global (App.jsx)
 // ============================================================
-// - Header dinámico con modo oscuro y scroll reactivo
-// - Menú móvil con efecto Parallax + Blur premium (tipo iOS)
-// - Botón hamburguesa animado (líneas → X) con microfeedback táctil
-// - Transición “spring” al volver al estado inicial
-// - Scroll suave hacia sección “Experiencia”
-// - Transiciones entre páginas con Framer Motion
+// - Header y Footer integrados con animaciones Framer Motion
+// - Modo oscuro / claro con transición suave
+// - Scroll controlado entre rutas con ScrollToTop
 // ============================================================
 
 import React, { useState, useEffect } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import useScrollHeader from "./hooks/useScrollHeader.jsx";
 import ScrollToTop from "./components/navigation/ScrollToTop.jsx";
 import ThemeSwitch from "./components/ui/ThemeSwitch.jsx";
+import useScrollHeader from "./hooks/useScrollHeader.jsx";
 
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const isScrolled = useScrollHeader();
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => setIsMenuOpen(false), [location]);
@@ -97,9 +93,9 @@ export default function App() {
             </Link>
 
             <Link
-              to="/gallery"
+              to="/galeria"
               className={`transition-colors duration-200 ${
-                location.pathname === "/gallery"
+                location.pathname === "/galeria"
                   ? "text-primary-light dark:text-primary-dark font-medium"
                   : "hover:text-primary-light dark:hover:text-primary-dark"
               }`}
@@ -129,9 +125,7 @@ export default function App() {
             <ThemeSwitch />
           </nav>
 
-          {/* ============================================================
-             BOTÓN HAMBURGUESA ANIMADO + MICROFEEDBACK + REBOTE
-          ============================================================ */}
+          {/* BOTÓN HAMBURGUESA MÓVIL */}
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -140,11 +134,7 @@ export default function App() {
           >
             <motion.span
               animate={isMenuOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
-              transition={
-                isMenuOpen
-                  ? { duration: 0.3, ease: "easeInOut" }
-                  : { type: "spring", stiffness: 260, damping: 20 }
-              }
+              transition={{ duration: 0.3 }}
               className="absolute w-6 h-[2px] bg-text-light dark:bg-text-dark rounded-full"
             />
             <motion.span
@@ -154,19 +144,13 @@ export default function App() {
             />
             <motion.span
               animate={isMenuOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
-              transition={
-                isMenuOpen
-                  ? { duration: 0.3, ease: "easeInOut" }
-                  : { type: "spring", stiffness: 260, damping: 20 }
-              }
+              transition={{ duration: 0.3 }}
               className="absolute w-6 h-[2px] bg-text-light dark:bg-text-dark rounded-full"
             />
           </motion.button>
         </div>
 
-        {/* ============================================================
-           MENÚ MÓVIL PARALLAX + BLUR
-        ============================================================ */}
+        {/* MENÚ MÓVIL */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
@@ -175,52 +159,23 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="fixed inset-0 z-20 flex flex-col items-center justify-center gap-8 text-lg font-medium text-gray-800 dark:text-gray-200 animate-parallax-fade-in"
+              className="fixed inset-0 z-20 flex flex-col items-center justify-center gap-8 text-lg font-medium text-gray-800 dark:text-gray-200 animate-parallax-fade-in bg-white/90 dark:bg-neutral-900/90 backdrop-blur-lg"
             >
-              <Link
-                to="/"
-                onClick={() => setIsMenuOpen(false)}
-                className={`${
-                  location.pathname === "/"
-                    ? "text-primary-light dark:text-primary-dark"
-                    : "hover:text-primary-light dark:hover:text-primary-dark"
-                }`}
-              >
+              <Link to="/" onClick={() => setIsMenuOpen(false)}>
                 Inicio
               </Link>
-
-              <Link
-                to="/servicios"
-                onClick={() => setIsMenuOpen(false)}
-                className="hover:text-primary-light dark:hover:text-primary-dark"
-              >
+              <Link to="/servicios" onClick={() => setIsMenuOpen(false)}>
                 Servicios
               </Link>
-
-              <Link
-                to="/gallery"
-                onClick={() => setIsMenuOpen(false)}
-                className="hover:text-primary-light dark:hover:text-primary-dark"
-              >
+              <Link to="/galeria" onClick={() => setIsMenuOpen(false)}>
                 Galería
               </Link>
-
-              <a
-                href="/#experiencia"
-                onClick={handleExperienciaClick}
-                className="hover:text-primary-light dark:hover:text-primary-dark cursor-pointer"
-              >
+              <a href="/#experiencia" onClick={handleExperienciaClick}>
                 Experiencia
               </a>
-
-              <Link
-                to="/checkout"
-                onClick={() => setIsMenuOpen(false)}
-                className="hover:text-primary-light dark:hover:text-primary-dark"
-              >
+              <Link to="/checkout" onClick={() => setIsMenuOpen(false)}>
                 Checkout
               </Link>
-
               <ThemeSwitch />
             </motion.div>
           )}
@@ -228,13 +183,9 @@ export default function App() {
       </header>
 
       {/* ============================================================
-         SCROLL AUTOMÁTICO ENTRE RUTAS
-      ============================================================ */}
-      <ScrollToTop />
-
-      {/* ============================================================
          CONTENIDO PRINCIPAL
       ============================================================ */}
+      <ScrollToTop />
       <main className="flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
