@@ -15,7 +15,6 @@ import App from "./App.jsx";
 import Home from "./pages/Home.jsx";
 import Servicios from "./pages/Servicios.jsx";
 import GalleryPage from "./pages/GalleryPage.jsx"; // ✅ Corregido (antes Galeria.jsx)
-import Experiencia from "./pages/Experiencia.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import Exito from "./pages/Exito.jsx";
 import Cancelado from "./pages/Cancelado.jsx";
@@ -29,6 +28,7 @@ import RegisterPage from "./pages/Auth/RegisterPage.jsx";
 // ============================================================
 // 🚀 Configuración del enrutador principal
 // ============================================================
+
 export default createBrowserRouter([
   {
     path: "/",
@@ -36,8 +36,13 @@ export default createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: "servicios", element: <Servicios /> },
-      { path: "galeria", element: <GalleryPage /> }, // ✅ Actualizado
-      { path: "experiencia", element: <Experiencia /> },
+      { path: "galeria", element: <GalleryPage /> },
+
+      // 💡 Experiencia NO es una página independiente, 
+      // está dentro del Home (componente ExperienceSection).
+      // Si en el futuro deseas crear una vista dedicada:
+      // /pages/ExperiencePage.jsx y agregarla aquí.
+
       { path: "checkout", element: <Checkout /> },
       { path: "pago", element: <PaymentPage /> },
       { path: "cart", element: <CartPage /> },
