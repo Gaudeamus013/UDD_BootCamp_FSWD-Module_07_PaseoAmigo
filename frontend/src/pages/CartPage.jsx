@@ -1,246 +1,164 @@
-// ============================================================
-// 📂 src/pages/CartPage.jsx
-// 🛒 Paseo Amigo – Carrito de Compras (Versión MVP)
-// ============================================================
-// ✨ Características:
-// - Visualización de productos agregados al carrito (simulados)
-// - Control de cantidad (+ / -) y eliminación
-// - Redirección simulada a /checkout
-// - Mensaje emocional si el carrito está vacío
-// - Animaciones suaves con Framer Motion
-// - Compatible con modo claro / oscuro
-// ============================================================
-
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ToastAlert from "../components/ui/ToastAlert.jsx";
 
 // ============================================================
-// 🧩 Productos de ejemplo (simulan planes del servicio)
+// 🐾 Paseo Amigo – CartPage.jsx (con ToastAlert integrado)
 // ============================================================
-const productosIniciales = [
-  {
-    id: 1,
-    nombre: "Paseo Light",
-    descripcion: "30 minutos – ideal para rondas rápidas",
-    precio: 9990,
-    imagen: "/assets/img/productos/paseo_light.jpg",
-    cantidad: 1,
-  },
-  {
-    id: 2,
-    nombre: "Paseo Full",
-    descripcion: "50 minutos – ejercicio y registro GPS",
-    precio: 14990,
-    imagen: "/assets/img/productos/paseo_full.jpg",
-    cantidad: 1,
-  },
-  {
-    id: 3,
-    nombre: "Paseo Especial",
-    descripcion: "90 minutos – entrenamiento + fotos + reporte",
-    precio: 22990,
-    imagen: "/assets/img/productos/paseo_especial.jpg",
-    cantidad: 1,
-  },
-];
+// • Feedback visual al eliminar o actualizar servicios
+// • Mantiene compatibilidad con localStorage y dark mode
+// • Usa distintos tipos de ToastAlert (success, warning)
+// ============================================================
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const [productos, setProductos] = useState(productosIniciales);
+  const [cart, setCart] = useState([]);
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
 
-  // ============================================================
-  // ⚙️ Funciones de manejo del carrito
-  // ============================================================
+  // ------------------------------------------------------------
+  // 🔄 Cargar carrito desde localStorage al montar
+  // ------------------------------------------------------------
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
+    }
+  }, []);
 
-  const incrementar = (id) => {
-    setProductos((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, cantidad: p.cantidad + 1 } : p
-      )
+  // ------------------------------------------------------------
+  // 🗑️ Eliminar servicio del carrito
+  // ------------------------------------------------------------
+  const handleRemove = (id) => {
+    const updatedCart = cart.filter((item) => item._id !== id);
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    if (updatedCart.length === 0) {
+      setType("warning");
+      setMessage("El carrito está vacío.");
+    } else {
+      setType("success");
+      setMessage("Servicio eliminado del carrito.");
+    }
+    setTimeout(() => setMessage(""), 2500);
+  };
+
+  // ------------------------------------------------------------
+  // 🔁 Actualizar cantidad
+  // ------------------------------------------------------------
+  const updateQuantity = (id, newQty) => {
+    if (newQty < 1) return;
+    const updatedCart = cart.map((item) =>
+      item._id === id ? { ...item, quantity: newQty } : item
     );
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    setType("success");
+    setMessage("Cantidad actualizada correctamente.");
+    setTimeout(() => setMessage(""), 2500);
   };
 
-  const decrementar = (id) => {
-    setProductos((prev) =>
-      prev.map((p) =>
-        p.id === id && p.cantidad > 1
-          ? { ...p, cantidad: p.cantidad - 1 }
-          : p
-      )
-    );
-  };
-
-  const eliminarProducto = (id) => {
-    setProductos((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  const subtotal = productos.reduce(
-    (acc, p) => acc + p.precio * p.cantidad,
+  // ------------------------------------------------------------
+  // 🧾 Calcular total
+  // ------------------------------------------------------------
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  const irAlCheckout = () => {
-    // 🔹 Simulación: redirige visualmente a /checkout
-    navigate("/checkout");
-  };
-
-  // ============================================================
-  // 🎞️ Variantes de animación (Framer Motion)
-  // ============================================================
-  const fadeSlideIn = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.7, ease: "easeOut" },
-    },
-  };
-
-  // ============================================================
-  // 🖼️ Render principal
-  // ============================================================
+  // ------------------------------------------------------------
+  // 🧱 Renderizado principal
+  // ------------------------------------------------------------
   return (
-    <motion.section
-      id="carrito"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-      variants={fadeSlideIn}
-      className="py-20 px-8 transition-colors duration-700 
-                 bg-gradient-to-b from-white via-amber-50 to-white 
-                 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900"
-    >
-      {/* Encabezado */}
-      <div className="text-center mb-12">
-        <motion.h2
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4"
-        >
-          Tu carrito de Paseo Amigo 🐾
-        </motion.h2>
-        <p className="text-subtext-light dark:text-subtext-dark">
-          Revisa tus servicios antes de continuar al pago.
-        </p>
-      </div>
+    <section className="min-h-screen flex flex-col items-center py-16 px-6 bg-gradient-to-b from-transparent to-white/5 dark:to-black/20 transition-colors">
+      <ToastAlert message={message} type={type} />
 
-      {/* Carrito vacío */}
-      {productos.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center py-20 text-center"
-        >
-          <img
-            src="/assets/img/ui/empty-cart.svg"
-            alt="Carrito vacío"
-            className="w-32 h-32 mb-6 opacity-80"
-            loading="lazy"
-          />
-          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200">
-            Tu carrito está vacío 🐾
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
-            Agrega un plan para alegrar el día de tu mascota.
-          </p>
-        </motion.div>
+      <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-gray-100">
+        Tu carrito 🛒
+      </h1>
+
+      {cart.length === 0 ? (
+        <div className="text-center text-gray-700 dark:text-gray-300">
+          <p className="mb-4">No hay servicios en tu carrito</p>
+          <button
+            onClick={() => navigate("/servicios")}
+            className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition"
+          >
+            Ver servicios
+          </button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Lista de productos */}
-          <div className="md:col-span-2 flex flex-col gap-6">
-            {productos.map((p) => (
-              <motion.div
-                key={p.id}
-                variants={fadeSlideIn}
-                className="flex flex-col md:flex-row items-center justify-between 
-                           bg-white/90 dark:bg-neutral-800/80 rounded-2xl shadow-md p-6 
-                           transition-all duration-500 hover:shadow-xl"
-              >
-                <div className="flex items-center gap-4">
-                  <img
-                    src={p.imagen}
-                    alt={p.nombre}
-                    className="w-24 h-24 object-cover rounded-xl shadow-sm"
-                    loading="lazy"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                      {p.nombre}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {p.descripcion}
-                    </p>
-                    <p className="font-medium text-primary-dark dark:text-primary-light mt-2">
-                      ${p.precio.toLocaleString("es-CL")}
-                    </p>
-                  </div>
+        <div className="max-w-4xl w-full flex flex-col gap-6">
+          {cart.map((item) => (
+            <div
+              key={item._id}
+              className="flex flex-col sm:flex-row items-center justify-between bg-white/70 dark:bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-md p-6"
+            >
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <span className="text-4xl">{item.name.includes("corto") ? "🐕" : item.name.includes("largo") ? "🦮" : "🐾"}</span>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {item.name}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    {item.description}
+                  </p>
+                  <p className="text-emerald-600 dark:text-emerald-400 font-bold mt-1">
+                    {item.price.toLocaleString("es-CL")} CLP
+                  </p>
                 </div>
+              </div>
 
-                {/* Controles */}
-                <div className="flex items-center gap-3 mt-4 md:mt-0">
+              <div className="flex items-center gap-4 mt-4 sm:mt-0">
+                <div className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-xl px-2 py-1">
                   <button
-                    onClick={() => decrementar(p.id)}
-                    className="px-3 py-1 bg-gray-200 dark:bg-neutral-700 rounded-lg hover:scale-105 transition"
+                    onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                    className="px-2 text-gray-600 dark:text-gray-300 hover:text-emerald-500"
                   >
-                    –
+                    −
                   </button>
-                  <span className="min-w-[24px] text-center">
-                    {p.cantidad}
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {item.quantity}
                   </span>
                   <button
-                    onClick={() => incrementar(p.id)}
-                    className="px-3 py-1 bg-gray-200 dark:bg-neutral-700 rounded-lg hover:scale-105 transition"
+                    onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                    className="px-2 text-gray-600 dark:text-gray-300 hover:text-emerald-500"
                   >
                     +
                   </button>
-                  <button
-                    onClick={() => eliminarProducto(p.id)}
-                    className="ml-4 text-red-500 hover:text-red-700 text-sm font-medium transition"
-                  >
-                    Eliminar
-                  </button>
                 </div>
-              </motion.div>
-            ))}
+
+                <button
+                  onClick={() => handleRemove(item._id)}
+                  className="text-red-500 hover:text-red-600 text-sm font-medium"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
+
+          <div className="flex justify-between items-center border-t border-gray-300 dark:border-gray-700 pt-6 mt-4">
+            <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Total:
+            </p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              {total.toLocaleString("es-CL")} CLP
+            </p>
           </div>
 
-          {/* Resumen del carrito */}
-          <motion.div
-            variants={fadeSlideIn}
-            className="bg-white/90 dark:bg-neutral-800/80 rounded-2xl shadow-md p-6 h-fit self-start"
-          >
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-              Resumen de tu pedido
-            </h3>
-
-            <div className="flex justify-between text-gray-700 dark:text-gray-300 mb-2">
-              <span>Subtotal</span>
-              <span>${subtotal.toLocaleString("es-CL")}</span>
-            </div>
-
-            <div className="flex justify-between text-gray-700 dark:text-gray-300 mb-4 border-b border-gray-300 dark:border-neutral-700 pb-2">
-              <span>Total</span>
-              <span className="font-bold text-primary-dark dark:text-primary-light">
-                ${subtotal.toLocaleString("es-CL")}
-              </span>
-            </div>
-
+          <div className="flex justify-end mt-6">
             <button
-              onClick={irAlCheckout}
-              disabled={productos.length === 0}
-              className={`w-full py-3 mt-2 rounded-full font-semibold transition-transform duration-300 ${
-                productos.length === 0
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-primary-dark text-white hover:scale-105"
-              }`}
+              onClick={() => navigate("/checkout")}
+              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-lg font-semibold transition"
             >
-              Proceder al Checkout
+              Proceder al pago 💳
             </button>
-          </motion.div>
+          </div>
         </div>
       )}
-    </motion.section>
+    </section>
   );
 }

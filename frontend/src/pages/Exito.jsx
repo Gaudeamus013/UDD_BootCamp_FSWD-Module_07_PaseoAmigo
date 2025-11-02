@@ -1,114 +1,61 @@
-// ============================================================
-// 🐾 Paseo Amigo – Página de Éxito (Versión Final Unificada)
-// ============================================================
-// - Mantiene la lógica funcional original (orderId + total)
-// - Aplica diseño visual Emergent UI (modo oscuro, transiciones suaves)
-// - Animación de check SVG profesional y colores adaptativos
-// ============================================================
+  import React, { useEffect, useState } from "react";
+  import { useNavigate } from "react-router-dom";
+  import ToastAlert from "../components/ui/ToastAlert.jsx";
+  import { motion } from "framer-motion";
 
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Link, useSearchParams } from "react-router-dom";
+  // ============================================================
+  // 🐾 Paseo Amigo – Exito.jsx (con ToastAlert y animación visual)
+  // ============================================================
+  // • Muestra confirmación automática tras el pago exitoso
+  // • Usa animación de check central con efecto de pulso
+  // • Totalmente adaptado a modo día/noche
+  // ============================================================
 
-export default function Exito() {
-  const [params] = useSearchParams();
-  const orderId = params.get("orderId");
-  const [total, setTotal] = useState(null);
+  export default function Exito() {
+    const navigate = useNavigate();
+    const [message, setMessage] = useState("");
+    const [type, setType] = useState("success");
 
-  useEffect(() => {
-    const savedTotal = localStorage.getItem("lastTotal");
-    if (savedTotal) setTotal(parseFloat(savedTotal));
-  }, []);
+    useEffect(() => {
+      setMessage("Tu reserva fue confirmada correctamente.");
+      const timer = setTimeout(() => setMessage(""), 2500);
+      return () => clearTimeout(timer);
+    }, []);
 
-  return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="min-h-screen flex items-center justify-center bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark transition-colors duration-700 px-4 py-16"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="max-w-md w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-lg p-8 border border-gray-200 dark:border-neutral-700 transition-colors duration-700"
-      >
-        <div className="text-center">
+    return (
+      <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white to-emerald-50 dark:from-black dark:to-neutral-900 text-center px-4">
+        <ToastAlert message={message} type={type} />
 
-          {/* ✅ Animación de Check */}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 180, damping: 15 }}
+          className="flex flex-col items-center justify-center"
+        >
           <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 150, damping: 15 }}
-            className="inline-flex items-center justify-center w-16 h-16 bg-green-500/90 dark:bg-green-400/80 text-white rounded-full mb-4 shadow-lg"
+            initial={{ scale: 0 }}
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="w-24 h-24 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg"
           >
-            <motion.svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-10 h-10"
-            >
-              <motion.path
-                d="M20 6L9 17l-5-5"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ delay: 0.3, duration: 1, ease: "easeInOut" }}
-              />
-            </motion.svg>
+            <span className="text-white text-5xl font-bold">✓</span>
           </motion.div>
 
-          {/* Título principal */}
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-            ¡Pago completado! 🎉
+          <h1 className="text-3xl font-bold mt-8 text-gray-900 dark:text-gray-100">
+            ¡Pago Exitoso!
           </h1>
-          <p className="text-gray-700 dark:text-gray-300 mb-6">
-            Gracias por confiar en <span className="font-semibold">Paseo Amigo</span>.
+          <p className="mt-4 text-gray-600 dark:text-gray-400 max-w-md">
+            Gracias por confiar en Paseo Amigo. Tu reserva ha sido procesada
+            correctamente y recibirás un correo de confirmación en los próximos minutos.
           </p>
 
-          {/* Resumen del pedido */}
-          <div className="text-left bg-gray-50 dark:bg-neutral-800 rounded-xl p-4 border border-gray-200 dark:border-neutral-700 transition-colors duration-700 mb-6">
-            <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">
-              🧾 Resumen del pedido
-            </h2>
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              <span className="font-medium">ID de orden:</span>{" "}
-              <span className="font-mono">{orderId || "No disponible"}</span>
-            </p>
-            {total !== null && (
-              <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
-                <span className="font-medium">Monto total:</span> ${total.toFixed(2)} USD
-              </p>
-            )}
-          </div>
-
-          {/* Botón Volver */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 150 }}
-            className="mt-4"
+          <button
+            onClick={() => navigate("/")}
+            className="mt-8 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-semibold transition"
           >
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 bg-primary-light hover:bg-brand-dark text-white font-medium px-6 py-3 rounded-full shadow transition-all duration-300"
-            >
-              <span>Volver al inicio</span> 🏠
-            </Link>
-          </motion.div>
-
-          {/* Footer */}
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-6 transition-colors duration-700">
-            Si tienes dudas, contáctanos a{" "}
-            <a href="mailto:contacto@paseoamigo.cl" className="underline">
-              contacto@paseoamigo.cl
-            </a>
-          </p>
-        </div>
-      </motion.div>
-    </motion.section>
-  );
-}
+            Volver al inicio
+          </button>
+        </motion.div>
+      </section>
+    );
+  }
