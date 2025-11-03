@@ -1,8 +1,10 @@
 // ============================================================
-// 💳 Rutas: checkoutRoutes.js
+// 💳 Rutas de Checkout (PayPal) – ES Modules
 // ============================================================
-// - Gestiona la comunicación entre el frontend y PayPal
-// - Incluye endpoints para crear, capturar y registrar pagos
+// Endpoints
+//  POST /api/checkout/create-order    → crea orden en PayPal
+//  POST /api/checkout/capture-order   → captura orden aprobada
+//  POST /api/checkout/register-payment→ registra pago en MongoDB
 // ============================================================
 
 import express from "express";
@@ -14,13 +16,13 @@ import {
 
 const router = express.Router();
 
-// 🧾 Crear orden PayPal
+// Crea una orden de PayPal a partir de un monto en CLP (se convierte a USD en backend)
 router.post("/create-order", createOrderController);
 
-// 💳 Capturar orden PayPal
+// Captura la orden aprobada por el usuario en PayPal
 router.post("/capture-order", captureOrderController);
 
-// 💾 Registrar pago en MongoDB
+// Registra el pago en la base de datos
 router.post("/register-payment", registerPayment);
 
 export default router;

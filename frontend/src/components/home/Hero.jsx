@@ -2,58 +2,77 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export default function Hero() {
+  // Definimos rutas locales y remotas
+  const heroDayLocal = "/assets/img/hero-day-light.jpg";
+  const heroNightLocal = "/assets/img/hero-night-dark.jpg";
+
+  const heroDayCloud =
+    "https://res.cloudinary.com/dmnxyqxcz/image/upload/v1761335551/hero-day-light_zhhbxf.jpg";
+  const heroNightCloud =
+    "https://res.cloudinary.com/dmnxyqxcz/image/upload/v1761335551/hero-night-dark_ccgc4f.jpg";
+
   return (
-    <section className="bg-gradient-to-b from-white to-gray-50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 py-20 grid md:grid-cols-2 gap-12 items-center">
-        {/* ===========================
-            BLOQUE IZQUIERDO: TEXTO + CTA
-        ============================ */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="space-y-6"
+    <section className="relative flex flex-col md:flex-row items-center justify-between px-6 py-20 md:py-28 max-w-6xl mx-auto">
+      {/* Texto principal */}
+      <motion.div
+        initial={{ opacity: 0, x: -40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-center md:text-left md:w-1/2"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900 dark:text-white mb-6">
+          Paseos felices para <br /> perros felices{" "}
+          <span className="text-purple-500">🐾</span>
+        </h1>
+
+        <p className="text-gray-700 dark:text-gray-300 mb-8 max-w-md mx-auto md:mx-0">
+          En <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+            Paseo Amigo
+          </span>{" "}
+          tu mascota es prioridad. Paseos seguros, divertidos y personalizados
+          para mejorar su bienestar y energía.
+        </p>
+
+        <Link
+          to="/servicios"
+          className="bg-amber-400 hover:bg-amber-500 text-white font-semibold py-3 px-6 rounded-full transition inline-flex items-center"
         >
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-            <span className="text-brand">Paseos felices</span> para perros felices 🐾
-          </h1>
+          Agendar Paseo 🐕
+        </Link>
+      </motion.div>
 
-          <p className="text-lg text-gray-600 max-w-lg">
-            En <span className="font-semibold text-brand-dark">Paseo Amigo</span> 
-            entendemos que tu mascota es parte de tu familia. 
-            Ofrecemos paseos seguros, divertidos y personalizados 
-            para mejorar su bienestar y energía.
-          </p>
+      {/* Imagen dinámica */}
+      <motion.div
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="relative md:w-1/2 mt-10 md:mt-0 flex justify-center"
+      >
+        {/* Imagen modo claro */}
+        <img
+          src={heroDayCloud}
+          alt="Paseo Amigo día"
+          className="block dark:hidden rounded-3xl shadow-xl object-cover w-full max-w-lg"
+          onError={(e) => {
+            e.target.src = heroDayLocal;
+          }}
+        />
 
-          <div className="pt-4">
-            <Link
-              to="/checkout"
-              className="btn btn-brand hover:scale-105 transform transition-transform duration-300 shadow-md"
-            >
-              Agendar Paseo 🐕
-            </Link>
-          </div>
-        </motion.div>
+        {/* Imagen modo oscuro */}
+        <img
+          src={heroNightCloud}
+          alt="Paseo Amigo noche"
+          className="hidden dark:block rounded-3xl shadow-xl object-cover w-full max-w-lg"
+          onError={(e) => {
+            e.target.src = heroNightLocal;
+          }}
+        />
 
-        {/* ===========================
-            BLOQUE DERECHO: IMAGEN
-        ============================ */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
-          className="relative"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1601758125946-6ec2b73e3f66?auto=format&fit=crop&w=800&q=80"
-            alt="Paseo con perro en el parque"
-            className="rounded-3xl shadow-xl object-cover w-full h-[400px] md:h-[480px]"
-          />
-          <div className="absolute -bottom-4 -right-4 bg-brand text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium">
-            +100 paseos felices 🌟
-          </div>
-        </motion.div>
-      </div>
+        {/* Badge inferior */}
+        <div className="absolute bottom-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-md text-sm font-medium">
+          +100 paseos felices 🌟
+        </div>
+      </motion.div>
     </section>
   );
 }
