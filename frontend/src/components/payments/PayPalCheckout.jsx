@@ -1,18 +1,15 @@
 // ============================================================
 // 💳 Componente: PayPalCheckout.jsx (Versión Final Estable)
 // ============================================================
-
-import React, { useCallback, useState, useContext } from "react";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import React, { useCallback, useState } from "react";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../context/UserContext.jsx";
+import { useUser } from "../../context/UserContext.jsx";
 
 export default function PayPalCheckout({ total, items }) {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user } = useUser();
   const backendURL = import.meta.env.VITE_BACKEND_URL;
-  const clientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
-  const currency = import.meta.env.VITE_PAYPAL_CURRENCY || "USD";
   const [loading, setLoading] = useState(false);
 
   const exchangeRate = 0.0011;
@@ -54,7 +51,7 @@ export default function PayPalCheckout({ total, items }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            userId: user?._id || "anónimo",
+            userId: user?._id || "anonimo",
             orderId: data.id,
             amountClp: total,
             amountUsd: usdAmount,
@@ -76,38 +73,29 @@ export default function PayPalCheckout({ total, items }) {
 
   return (
     <div className="w-full mt-4 flex flex-col items-center">
-      <PayPalScriptProvider
-        options={{
-          "client-id": clientId,
-          currency,
-          intent: "capture",
-          components: "buttons",
+      {loading && <p className="text-sm text-gray-500 mb-2">Procesando pago...</p>}
+      <PayPalButtons
+        style={{
+          layout: "vertical",
+          color: "gold",
+          shape: "rect",
+          label: "paypal",
+          height: 48,
         }}
-      >
-        {loading && <p className="text-sm text-gray-500 mb-2">Procesando pago...</p>}
-        <PayPalButtons
-          style={{
-            layout: "vertical",
-            color: "gold",
-            shape: "rect",
-            label: "paypal",
-            height: 48,
-          }}
-          createOrder={async () => {
-            const orderId = await createOrder();
-            if (!orderId) throw new Error("Error al crear la orden en backend");
-            return orderId;
-          }}
-          onApprove={async (data) => await captureOrder(data.orderID)}
-          onCancel={() => navigate("/cancelado")}
-          onError={() => navigate("/cancelado")}
-        />
-        <p className="text-xs text-gray-400 mt-3 text-center">
-          Monto: ${total.toLocaleString("es-CL")} CLP (≈ {usdAmount} USD)
-          <br />
-          Transacción segura mediante PayPal Sandbox.
-        </p>
-      </PayPalScriptProvider>
+        createOrder={async () => {
+          const orderId = await createOrder();
+          if (!orderId) throw new Error("Error al crear la orden en backend");
+          return orderId;
+        }}
+        onApprove={async (data) => await captureOrder(data.orderID)}
+        onCancel={() => navigate("/cancelado")}
+        onError={() => navigate("/cancelado")}
+      />
+      <p className="text-xs text-gray-400 mt-3 text-center">
+        Monto: ${total.toLocaleString("es-CL")} CLP (≈ {usdAmount} USD)
+        <br />
+        Transacción segura mediante PayPal Sandbox.
+      </p>
     </div>
   );
 }

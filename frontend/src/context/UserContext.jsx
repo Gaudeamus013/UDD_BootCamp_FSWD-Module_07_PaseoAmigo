@@ -1,18 +1,23 @@
 // ============================================================
-// 🧠 CONTEXTO GLOBAL DE USUARIO – Paseo Amigo v4.0
+// 🧠 CONTEXTO GLOBAL DE USUARIO – Paseo Amigo v4.1
 // ============================================================
 // Maneja:
 // • Registro, login y logout
 // • Persistencia de sesión (localStorage)
 // • Verificación del perfil autenticado (JWT)
+// • Compatible con PayPalCheckout.jsx (user?._id, user?.token)
 // ============================================================
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../lib/api";
 
-const UserContext = createContext();
+// Crear el contexto
+export const UserContext = createContext();
 
+// ============================================================
+// 🧩 Provider principal
+// ============================================================
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() =>
     JSON.parse(localStorage.getItem("userInfo")) || null
@@ -20,7 +25,7 @@ export const UserProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!user);
 
   // ------------------------------------------------------------
-  // Registrar nuevo usuario
+  // 📋 Registrar nuevo usuario
   // ------------------------------------------------------------
   const register = async (name, email, password) => {
     try {
@@ -38,7 +43,7 @@ export const UserProvider = ({ children }) => {
 
       return { success: true, message: data.message };
     } catch (error) {
-      console.error("Error al registrar usuario:", error);
+      console.error("❌ Error al registrar usuario:", error);
       return {
         success: false,
         message:
@@ -49,7 +54,7 @@ export const UserProvider = ({ children }) => {
   };
 
   // ------------------------------------------------------------
-  // Iniciar sesión
+  // 🔐 Iniciar sesión
   // ------------------------------------------------------------
   const login = async (email, password) => {
     try {
@@ -76,7 +81,7 @@ export const UserProvider = ({ children }) => {
   };
 
   // ------------------------------------------------------------
-  // Cerrar sesión
+  // 🚪 Cerrar sesión
   // ------------------------------------------------------------
   const logout = () => {
     localStorage.removeItem("userInfo");
@@ -85,7 +90,7 @@ export const UserProvider = ({ children }) => {
   };
 
   // ------------------------------------------------------------
-  // Obtener perfil del usuario autenticado
+  // 👤 Obtener perfil autenticado
   // ------------------------------------------------------------
   const fetchProfile = async () => {
     if (!user?.token) return null;
@@ -95,12 +100,14 @@ export const UserProvider = ({ children }) => {
       });
       return data;
     } catch (error) {
-      console.error("Error al obtener perfil:", error);
+      console.error("⚠️ Error al obtener perfil:", error);
       return null;
     }
   };
 
-  // Persistencia entre sesiones
+  // ------------------------------------------------------------
+  // ♻️ Persistencia entre sesiones
+  // ------------------------------------------------------------
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("userInfo"));
     if (savedUser) {
@@ -109,13 +116,28 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
+  // ============================================================
+  // 📡 Exportar valores globales
+  // ============================================================
   return (
     <UserContext.Provider
-      value={{ user, isLoggedIn, register, login, logout, fetchProfile }}
+      value={{
+        user,
+        isLoggedIn,
+        register,
+        login,
+        logout,
+        fetchProfile,
+        setUser,
+        setIsLoggedIn,
+      }}
     >
       {children}
     </UserContext.Provider>
   );
 };
 
+// ============================================================
+// 🎯 Hook personalizado (compatibilidad PayPalCheckout.jsx)
+// ============================================================
 export const useUser = () => useContext(UserContext);

@@ -1,47 +1,37 @@
 // ============================================================
-// 🗺️ Rutas principales del proyecto Paseo Amigo
+// 🧭 router.jsx – Enrutador Principal Paseo Amigo (v3)
 // ============================================================
-// Controla las páginas de alto nivel y sus rutas con React Router
-// ============================================================
-
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
-
-// 🌐 Layout global y contextos
 import App from "./App.jsx";
-
-// 🧭 Páginas principales
-import LandingPage from "./pages/LandingPage.jsx";
+import Home from "./pages/Home.jsx";
 import Servicios from "./pages/Servicios.jsx";
-import GalleryPage from "./pages/GalleryPage.jsx"; // ✅ nombre correcto
-import CartPage from "./pages/CartPage.jsx";
+import GalleryPage from "./pages/GalleryPage.jsx";
 import Checkout from "./pages/Checkout.jsx";
-import PaymentPage from "./pages/PaymentPage.jsx"; 
 import Exito from "./pages/Exito.jsx";
 import Cancelado from "./pages/Cancelado.jsx";
-
-// 👤 Autenticación
+import CartPage from "./pages/CartPage.jsx";
+import PaymentPage from "./pages/PaymentPage.jsx";
 import LoginPage from "./pages/Auth/LoginPage.jsx";
 import RegisterPage from "./pages/Auth/RegisterPage.jsx";
+import ErrorFallback from "./components/errors/ErrorFallback.jsx";
 
-export const router = createBrowserRouter([
+export default createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <ErrorFallback />,
     children: [
-      { index: true, element: <LandingPage /> },
+      { index: true, element: <Home /> },
       { path: "servicios", element: <Servicios /> },
       { path: "galeria", element: <GalleryPage /> },
-      { path: "carrito", element: <CartPage /> },
       { path: "checkout", element: <Checkout /> },
       { path: "pago", element: <PaymentPage /> },
+      { path: "cart", element: <CartPage /> },
       { path: "exito", element: <Exito /> },
       { path: "cancelado", element: <Cancelado /> },
-      { path: "login", element: <LoginPage /> },
-      { path: "register", element: <RegisterPage /> },
+      { path: "auth/login", element: <LoginPage /> },
+      { path: "auth/register", element: <RegisterPage /> },
     ],
   },
 ]);
-
-export default router;
-  
