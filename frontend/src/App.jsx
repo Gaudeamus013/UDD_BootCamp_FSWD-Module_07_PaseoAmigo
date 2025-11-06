@@ -13,11 +13,34 @@ import ScrollToTop from "./components/navigation/ScrollToTop.jsx";
 import ThemeSwitch from "./components/ui/ThemeSwitch.jsx";
 import useScrollHeader from "./hooks/useScrollHeader.jsx";
 
+// 🧩 Importar Axios centralizado (debe estar aquí ARRIBA)
+import api from "./api/api.js";
+
+// 🧩 NUEVO: Importamos Axios para testear conexión con backend
+import axios from "axios";
+
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const isScrolled = useScrollHeader();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+// // 🧪 TEST CONEXIÓN BACKEND (temporal)
+
+
+//   useEffect(() => {
+//     const testConnection = async () => {
+//       try {
+//         const response = await api.get("/api/health");
+//         console.log("✅ Conexión exitosa con el backend:", response.data);
+//       } catch (error) {
+//         console.error("❌ Error de conexión con el backend:", error.message);
+//       }
+//     };
+//     testConnection();
+//   }, []);
+// // 🧪 FIN TEST
+
 
   useEffect(() => setIsMenuOpen(false), [location]);
   useEffect(() => {
