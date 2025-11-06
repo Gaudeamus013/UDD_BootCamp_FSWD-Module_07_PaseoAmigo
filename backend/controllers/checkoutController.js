@@ -1,70 +1,52 @@
-// ============================================================
-// 💳 Controlador: Checkout (PayPal + Registro de Pago)
-// ============================================================
+import { createOrder, captureOrder } from "../utils/paypal.js";
+import Booking from "../models/bookingModel.js";
 
-import asyncHandler from "express-async-handler";
-import { createOrder, captureOrder } from "../config/paypalConfig.js";
-import Payment from "../models/paymentModel.js";
-
-// Crear orden PayPal
-export const createOrderController = asyncHandler(async (req, res) => {
-  const { amountClp, description } = req.body;
-  if (!amountClp || isNaN(amountClp)) {
-    res.status(400);
-    throw new Error("Monto CLP inválido o no proporcionado.");
-  }
-
+// POST /api/checkout/create-order
+// body: { amountUSD: string/number, description?: string }
+export const createPaypalOrder = async (req, res, next) => {
   try {
-    const order = await createOrder({
-      amountClp,
-      description: description || "Servicio Paseo Amigo",
-      referenceId: `PA-${Date.now()}`,
-    });
-    res.status(201).json(order);
-  } catch (error) {
-    res.status(500).json({ message: "Error al crear la orden PayPal", error: error?.message });
-  }
-});
+    const { amountUSD, description = "Paseo Amigo" } = req.body;
+    if (!amountUSD) return res.status(400).json({ message: "amountUSD requerido" });
 
-// Capturar orden PayPal
-export const captureOrderController = asyncHandler(async (req, res) => {
-  const { orderId } = req.body;
-  if (!orderId) {
-    res.status(400);
-    throw new Error("ID de orden PayPal no proporcionado.");
+    const order = await createOrder({ amount: String(amountUSD), currency: "USD", description });
+    return res.status(201).json({ orderId: order.id, paypal: order });
+  } catch (e) {
+    return next({ status: 500, message: "Error creando orden PayPal", details: e.details || e.message });
   }
+};
 
+// POST /api/checkout/capture-order
+// body: { orderId, serviceType, date, durationMins, priceUSD, notes? }
+export const capturePaypalAndCreateBooking = async (req, res, next) => {
   try {
-    const capture = await captureOrder(orderId);
-    res.status(200).json(capture);
-  } catch (error) {
-    res.status(500).json({ message: "Error al capturar la orden PayPal", error: error?.message });
-  }
-});
-
-// Registrar pago en MongoDB
-export const registerPayment = asyncHandler(async (req, res) => {
-  try {
-    const { userId, orderId, amountClp, amountUsd, items, status } = req.body;
-    if (!userId || !orderId) {
-      return res.status(400).json({ message: "Faltan datos obligatorios." });
+    const { orderId, serviceType, date, durationMins, priceUSD, notes } = req.body;
+    if (!orderId) return res.status(400).json({ message: "orderId requerido" });
+    if (!serviceType || !date || !durationMins || !priceUSD) {
+      return res.status(400).json({ message: "Faltan campos de reserva" });
     }
 
-    const newPayment = new Payment({
-      userId,
-      orderId,
-      amountClp,
-      amountUsd,
-      items,
-      status: status || "COMPLETED",
-      createdAt: new Date(),
+    // 1) Captura en PayPal (server-to-server)
+    const result = await captureOrder(orderId);
+    const status = result?.status || "FAILED";
+    const captureId = result?.purchase_units?.[0]?.payments?.captures?.[0]?.id;
+
+    if (status !== "COMPLETED") {
+      return res.status(422).json({ message: "Pago no completado", paypal: result });
+    }
+
+    // 2) Crea la reserva ligada al usuario autenticado
+    const booking = await Booking.create({
+      user: req.user._id,
+      serviceType,
+      date,
+      durationMins,
+      priceUSD,
+      payment: { provider: "paypal", orderId, captureId, status },
+      notes,
     });
 
-    await newPayment.save();
-    console.log("💾 Pago registrado correctamente en MongoDB");
-    res.status(201).json({ message: "Pago registrado correctamente." });
-  } catch (error) {
-    console.error("❌ Error registrando pago:", error);
-    res.status(500).json({ message: "Error al registrar el pago." });
+    return res.status(201).json({ booking, paypal: result });
+  } catch (e) {
+    return next({ status: 500, message: "Error al capturar y crear reserva", details: e.details || e.message });
   }
-});
+};

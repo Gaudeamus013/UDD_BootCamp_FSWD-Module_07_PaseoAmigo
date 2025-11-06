@@ -1,111 +1,112 @@
 // ============================================================
-// 🔐 CONTROLADOR DE AUTENTICACIÓN – Paseo Amigo v4.0
+// 🔐 CONTROLADOR DE AUTENTICACIÓN - Paseo Amigo (Roles activos)
 // ============================================================
-// Maneja:
-// • Registro de nuevos usuarios con validaciones avanzadas
-// • Inicio de sesión con verificación de hash bcrypt
-// • Respuestas claras y coherentes con el frontend
+// Maneja: Registro, Login, Refresh, Logout y Perfil
+// Roles: admin, paseador, cliente
 // ============================================================
 
 import User from "../models/userModel.js";
-import asyncHandler from "express-async-handler";
-import jwt from "jsonwebtoken";
+import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
+import { getCookieOptions } from "../config/cookieOptions.js";
 
 // ------------------------------------------------------------
-// 🧩 Generar Token JWT
+// 🆕 Registro de usuario (por defecto: cliente)
 // ------------------------------------------------------------
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "30d", // 30 días de validez
-  });
+export const registerUser = async (req, res, next) => {
+  try {
+    const { name, email, password, role } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Todos los campos son obligatorios" });
+    }
+
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res.status(409).json({ message: "El correo ya está registrado" });
+    }
+
+    const validRoles = ["admin", "paseador", "cliente"];
+    const userRole = validRoles.includes(role) ? role : "cliente";
+
+    const user = await User.create({ name, email, password, role: userRole });
+
+    const accessToken = signAccessToken({ id: user._id, role: user.role });
+    const refreshToken = signRefreshToken({ id: user._id, role: user.role });
+
+    res.cookie(process.env.COOKIE_NAME || "rt", refreshToken, getCookieOptions());
+    return res.status(201).json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      accessToken,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // ------------------------------------------------------------
-// 🧾 Registrar nuevo usuario
+// 🔑 Login de usuario
 // ------------------------------------------------------------
-export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+export const loginUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) return res.status(401).json({ message: "Credenciales inválidas" });
 
-  // Validar campos obligatorios
-  if (!name || !email || !password) {
-    res.status(400);
-    throw new Error("Todos los campos son obligatorios.");
+    const match = await user.matchPassword(password);
+    if (!match) return res.status(401).json({ message: "Credenciales inválidas" });
+
+    const accessToken = signAccessToken({ id: user._id, role: user.role });
+    const refreshToken = signRefreshToken({ id: user._id, role: user.role });
+
+    res.cookie(process.env.COOKIE_NAME || "rt", refreshToken, getCookieOptions());
+    return res.json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      accessToken,
+    });
+  } catch (error) {
+    next(error);
   }
+};
 
-  // Verificar si el correo ya existe
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    res.status(400);
-    throw new Error(
-      "Este correo ya pertenece a una cuenta. Si ya te registraste, inicia sesión o usa otro correo electrónico."
-    );
+// ------------------------------------------------------------
+// ♻️ Refrescar token de acceso
+// ------------------------------------------------------------
+export const refreshToken = async (req, res, next) => {
+  try {
+    const rt = req.cookies?.[process.env.COOKIE_NAME || "rt"];
+    if (!rt) return res.status(401).json({ message: "Sin refresh token" });
+
+    const decoded = verifyRefreshToken(rt);
+    const accessToken = signAccessToken({ id: decoded.id, role: decoded.role });
+    return res.json({ accessToken });
+  } catch (error) {
+    next({ status: 401, message: "Refresh inválido o expirado" });
   }
+};
 
-  // Crear nuevo usuario
-  const user = await User.create({
-    name,
-    email,
-    password,
+// ------------------------------------------------------------
+// 🚪 Logout
+// ------------------------------------------------------------
+export const logoutUser = async (_req, res) => {
+  res.clearCookie(process.env.COOKIE_NAME || "rt", {
+    path: "/",
+    domain: process.env.COOKIE_DOMAIN || undefined,
   });
-
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
-      message: "Cuenta creada exitosamente 🎉 Bienvenido a Paseo Amigo",
-    });
-  } else {
-    res.status(400);
-    throw new Error("Datos inválidos. No se pudo crear la cuenta.");
-  }
-});
+  return res.json({ message: "Sesión cerrada" });
+};
 
 // ------------------------------------------------------------
-// 🔓 Iniciar sesión
+// 👤 Perfil autenticado
 // ------------------------------------------------------------
-export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  // Validar campos
-  if (!email || !password) {
-    res.status(400);
-    throw new Error("Por favor ingrese correo y contraseña.");
-  }
-
-  // Buscar usuario por correo
-  const user = await User.findOne({ email }).select("+password");
-
-  if (user && (await user.matchPassword(password))) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
-      message: "Inicio de sesión exitoso 👋 Bienvenido de nuevo",
-    });
-  } else {
-    res.status(401);
-    throw new Error("Correo o contraseña incorrectos.");
-  }
-});
-
-// ------------------------------------------------------------
-// 🔒 Obtener perfil del usuario autenticado
-// ------------------------------------------------------------
-export const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-
-  if (user) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    });
-  } else {
-    res.status(404);
-    throw new Error("Usuario no encontrado.");
-  }
-});
+export const getProfile = async (req, res) => {
+  return res.json({ user: req.user });
+};

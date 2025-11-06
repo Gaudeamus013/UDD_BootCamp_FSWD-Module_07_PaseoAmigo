@@ -1,18 +1,15 @@
 // ============================================================
-// 👤 MODELO DE USUARIO - Paseo Amigo v4.0 (Optimizado)
+// 👤 MODELO DE USUARIO - Paseo Amigo v5.0 (Roles: admin, paseador, cliente)
 // ============================================================
-// Reglas avanzadas de validación:
-// • Correo con formato correcto y manejo de duplicados
-// • Contraseña con validación de seguridad (regex robusta)
-// • Encriptación automática con bcryptjs
+// Validaciones:
+// • Correo único y con formato válido
+// • Contraseña segura y encriptada con bcryptjs
+// • Roles originales conservados: admin, paseador, cliente
 // ============================================================
 
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-// ------------------------------------------------------------
-// 🧩 Esquema del Usuario
-// ------------------------------------------------------------
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -35,7 +32,6 @@ const userSchema = new mongoose.Schema(
       minlength: [8, "La contraseña debe tener al menos 8 caracteres."],
       validate: {
         validator: function (value) {
-          // Debe tener minúscula, mayúscula, número y carácter especial
           return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}[\]:;"'<>,.?/~]).{8,}$/.test(
             value
           );
@@ -43,28 +39,28 @@ const userSchema = new mongoose.Schema(
         message:
           "La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un símbolo especial.",
       },
-      select: false, // 🔒 evita devolver la contraseña en consultas
+      select: false,
     },
 
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: ["admin", "paseador", "cliente"],
+      default: "cliente",
     },
+
+    phone: { type: String, default: "" },
+    avatarUrl: { type: String, default: "" },
+    address: { type: String, default: "" },
+    comuna: { type: String, default: "" },
   },
-  {
-    timestamps: true, // Añade createdAt y updatedAt automáticamente
-  }
+  { timestamps: true }
 );
 
 // ------------------------------------------------------------
 // 🔐 Middleware: Encriptar contraseña antes de guardar
 // ------------------------------------------------------------
 userSchema.pre("save", async function (next) {
-  // Si la contraseña no fue modificada, continuar
   if (!this.isModified("password")) return next();
-
-  // Generar salt y encriptar
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
