@@ -1,5 +1,10 @@
+// ============================================================
+// 🐾 Servicios.jsx — Catálogo de Paseos
+// Paseo Amigo · Integrado con apiClient (JWT + Refresh)
+// ============================================================
+
 import React, { useEffect, useState } from "react";
-import { API_BASE_URL } from "../lib/api";
+import { apiClient } from "../lib/apiClient";
 import { useUser } from "../context/UserContext.jsx";
 import ToastAlert from "../components/ui/ToastAlert.jsx";
 import { motion } from "framer-motion";
@@ -13,7 +18,7 @@ export default function Servicios() {
   const [message, setMessage] = useState("");
   const [type, setType] = useState("info");
 
-  // 🌐 Definición base para íconos (CDN o local)
+  // 🌐 Base de íconos (local / remoto)
   const iconBaseURL =
     import.meta.env.MODE === "development"
       ? "/assets/icons/"
@@ -23,9 +28,7 @@ export default function Servicios() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/walktypes`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const { data } = await apiClient.get("/walktypes");
         setServices(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error cargando servicios:", error);
@@ -89,7 +92,6 @@ export default function Servicios() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {services.map((service) => {
-            // Asignar ícono según nombre del servicio
             let iconFile = "walk-30.svg";
             if (service.name.toLowerCase().includes("largo")) iconFile = "walk-50.svg";
             if (service.name.toLowerCase().includes("doble")) iconFile = "walk-double.svg";
@@ -108,7 +110,6 @@ export default function Servicios() {
                       alt={service.name}
                       className="w-14 h-14 mx-auto mb-4 transition-all duration-500 dark:invert dark:brightness-200"
                       onError={(e) => {
-                        // fallback local + modo oscuro aplicable
                         e.target.src = `/assets/icons/${iconFile}`;
                         e.target.classList.add(
                           "transition-all",

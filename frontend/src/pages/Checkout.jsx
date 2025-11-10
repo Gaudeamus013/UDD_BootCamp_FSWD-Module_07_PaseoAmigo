@@ -1,6 +1,11 @@
+// ============================================================
+// 💳 Checkout.jsx — Flujo de pago con PayPal
+// Paseo Amigo · Integrado con apiClient (JWT + Refresh)
+// ============================================================
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../lib/api";
+import { apiClient } from "../lib/apiClient";
 import ToastAlert from "../components/ui/ToastAlert.jsx";
 
 export default function Checkout() {
@@ -28,19 +33,13 @@ export default function Checkout() {
       setType("info");
       setMessage("Conectando con PayPal...");
 
-      const response = await fetch(`${API_BASE_URL}/api/checkout/create-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart }),
-      });
+      const { data } = await apiClient.post("/checkout/create-order", { cart });
 
-      const data = await response.json();
-
-      if (!response.ok || !data.id) {
+      if (!data || !data.id) {
         throw new Error("No se pudo crear la orden de pago");
       }
 
-      const approveLink = data.links.find((link) => link.rel === "approve");
+      const approveLink = data.links?.find((link) => link.rel === "approve");
       if (approveLink) {
         window.location.href = approveLink.href;
       } else {

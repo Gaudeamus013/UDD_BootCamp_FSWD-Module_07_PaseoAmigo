@@ -30,9 +30,9 @@ export default function ServiciosPreview() {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true, amount: 0.3 }}
-      className="max-w-6xl mx-auto px-4 py-20 text-center"
+      className="max-w-6xl mx-auto px-4 py-8 text-center mt-0 mb-0" // 🔧 Ajuste de espaciado
     >
-      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-10">
+      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
         Nuestros Servicios
       </h2>
 
@@ -51,7 +51,6 @@ export default function ServiciosPreview() {
               alt={srv.title}
               className="w-14 h-14 mx-auto mb-4 transition-all duration-500 dark:invert dark:brightness-200"
               onError={(e) => {
-                // fallback local + ajuste de color
                 e.target.src = `/assets/icons/${srv.icon}`;
                 e.target.classList.add(
                   "transition-all",

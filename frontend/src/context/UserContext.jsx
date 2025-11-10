@@ -1,143 +1,161 @@
 // ============================================================
-// 🧠 CONTEXTO GLOBAL DE USUARIO – Paseo Amigo v4.1
+// 🧠 UserContext.jsx — Manejo global de autenticación JWT
 // ============================================================
-// Maneja:
-// • Registro, login y logout
-// • Persistencia de sesión (localStorage)
-// • Verificación del perfil autenticado (JWT)
-// • Compatible con PayPalCheckout.jsx (user?._id, user?.token)
+// - Persiste el accessToken y opcionalmente el refreshToken
+// - Interactúa con apiClient (Axios con interceptores)
+// - Provee user, isLoggedIn, login, register, logout, loadUser
 // ============================================================
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
-import { API_BASE_URL } from "../lib/api";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { apiClient } from "../lib/apiClient"; // cliente axios con interceptores JWT
 
-// Crear el contexto
-export const UserContext = createContext();
+// ------------------------------------------------------------
+// Contexto de Usuario
+// ------------------------------------------------------------
+const UserContext = createContext();
 
-// ============================================================
-// 🧩 Provider principal
-// ============================================================
-export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(() =>
-    JSON.parse(localStorage.getItem("userInfo")) || null
-  );
-  const [isLoggedIn, setIsLoggedIn] = useState(!!user);
+export function UserProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [userInfo, setUserInfo] = useState(() => readStored());
+  const [isLoggedIn, setIsLoggedIn] = useState(!!userInfo?.accessToken);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // ------------------------------------------------------------
-  // 📋 Registrar nuevo usuario
-  // ------------------------------------------------------------
-  const register = async (name, email, password) => {
+  // ============================================================
+  // 🧱 Funciones internas
+  // ============================================================
+
+  // 🧩 Recupera sesión almacenada desde localStorage
+  function readStored() {
     try {
-      const { data } = await axios.post(`${API_BASE_URL}/api/auth/register`, {
-        name,
-        email,
-        password,
-      });
+      const raw = localStorage.getItem("userInfo");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
 
-      if (data.token) {
-        localStorage.setItem("userInfo", JSON.stringify(data));
-        setUser(data);
-        setIsLoggedIn(true);
+      // ✅ Mejora mínima: soporte opcional a refreshToken
+      if (parsed?.refreshToken) {
+        return { ...parsed }; // se mantiene por si el backend lo entrega
       }
 
-      return { success: true, message: data.message };
-    } catch (error) {
-      console.error("❌ Error al registrar usuario:", error);
-      return {
-        success: false,
-        message:
-          error.response?.data?.message ||
-          "No se pudo crear la cuenta. Intenta nuevamente.",
-      };
-    }
-  };
-
-  // ------------------------------------------------------------
-  // 🔐 Iniciar sesión
-  // ------------------------------------------------------------
-  const login = async (email, password) => {
-    try {
-      const { data } = await axios.post(`${API_BASE_URL}/api/auth/login`, {
-        email,
-        password,
-      });
-
-      if (data.token) {
-        localStorage.setItem("userInfo", JSON.stringify(data));
-        setUser(data);
-        setIsLoggedIn(true);
-      }
-
-      return { success: true, message: data.message };
-    } catch (error) {
-      return {
-        success: false,
-        message:
-          error.response?.data?.message ||
-          "Error al iniciar sesión. Verifica tus credenciales.",
-      };
-    }
-  };
-
-  // ------------------------------------------------------------
-  // 🚪 Cerrar sesión
-  // ------------------------------------------------------------
-  const logout = () => {
-    localStorage.removeItem("userInfo");
-    setUser(null);
-    setIsLoggedIn(false);
-  };
-
-  // ------------------------------------------------------------
-  // 👤 Obtener perfil autenticado
-  // ------------------------------------------------------------
-  const fetchProfile = async () => {
-    if (!user?.token) return null;
-    try {
-      const { data } = await axios.get(`${API_BASE_URL}/api/auth/profile`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      return data;
-    } catch (error) {
-      console.error("⚠️ Error al obtener perfil:", error);
+      return parsed;
+    } catch {
       return null;
     }
-  };
+  }
 
-  // ------------------------------------------------------------
-  // ♻️ Persistencia entre sesiones
-  // ------------------------------------------------------------
+  // 🧩 Persiste datos del usuario autenticado
+  function persist(obj) {
+    const toSave = { ...obj };
+
+    // ✅ Mejora mínima: guardar refreshToken si el backend lo devuelve
+    if (obj?.refreshToken) {
+      toSave.refreshToken = obj.refreshToken;
+    }
+
+    localStorage.setItem("userInfo", JSON.stringify(toSave));
+    setUserInfo(toSave);
+    setIsLoggedIn(!!obj?.accessToken);
+  }
+
+  // ============================================================
+  // 🧭 Autenticación
+  // ============================================================
+
+  async function register(data) {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await apiClient.post("/auth/register", data);
+      const info = res.data;
+      persist(info);
+      await loadUser();
+      return info;
+    } catch (err) {
+      console.error("Error en register:", err);
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function login(credentials) {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await apiClient.post("/auth/login", credentials);
+      const info = res.data;
+      persist(info);
+      await loadUser();
+      return info;
+    } catch (err) {
+      console.error("Error en login:", err);
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function logout() {
+    try {
+      setLoading(true);
+      await apiClient.post("/auth/logout"); // elimina cookie refresh
+    } catch (err) {
+      console.warn("Error en logout:", err);
+    } finally {
+      localStorage.removeItem("userInfo");
+      setUser(null);
+      setUserInfo(null);
+      setIsLoggedIn(false);
+      setLoading(false);
+    }
+  }
+
+  async function loadUser() {
+    try {
+      if (!userInfo?.accessToken) return;
+      setLoading(true);
+      const res = await apiClient.get("/users/me");
+      setUser(res.data);
+    } catch (err) {
+      console.error("Error al cargar usuario:", err);
+      if (err.response?.status === 401) {
+        await logout();
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ============================================================
+  // 🚀 Efecto inicial
+  // ============================================================
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem("userInfo"));
-    if (savedUser) {
-      setUser(savedUser);
-      setIsLoggedIn(true);
+    if (userInfo?.accessToken && !user) {
+      loadUser();
     }
   }, []);
 
   // ============================================================
-  // 📡 Exportar valores globales
+  // 📦 Valor del contexto
   // ============================================================
-  return (
-    <UserContext.Provider
-      value={{
-        user,
-        isLoggedIn,
-        register,
-        login,
-        logout,
-        fetchProfile,
-        setUser,
-        setIsLoggedIn,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
-  );
-};
+  const value = {
+    user,
+    userInfo,
+    isLoggedIn,
+    loading,
+    error,
+    login,
+    register,
+    logout,
+    loadUser,
+  };
 
-// ============================================================
-// 🎯 Hook personalizado (compatibilidad PayPalCheckout.jsx)
-// ============================================================
-export const useUser = () => useContext(UserContext);
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+}
+
+// Hook para consumir el contexto
+export function useUser() {
+  return useContext(UserContext);
+}

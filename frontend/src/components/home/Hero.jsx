@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export default function Hero() {
-  // Definimos rutas locales y remotas
   const heroDayLocal = "/assets/img/hero-day-light.jpg";
   const heroNightLocal = "/assets/img/hero-night-dark.jpg";
 
@@ -12,7 +11,9 @@ export default function Hero() {
     "https://res.cloudinary.com/dmnxyqxcz/image/upload/v1761335551/hero-night-dark_ccgc4f.jpg";
 
   return (
-    <section className="relative flex flex-col md:flex-row items-center justify-between px-6 py-20 md:py-28 max-w-6xl mx-auto">
+    <section
+      className="relative flex flex-col md:flex-row items-center justify-between px-6 py-12 md:py-20 max-w-6xl mx-auto mb-0" // 🔧 Ajuste de espaciado
+    >
       {/* Texto principal */}
       <motion.div
         initial={{ opacity: 0, x: -40 }}
@@ -26,7 +27,8 @@ export default function Hero() {
         </h1>
 
         <p className="text-gray-700 dark:text-gray-300 mb-8 max-w-md mx-auto md:mx-0">
-          En <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+          En{" "}
+          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
             Paseo Amigo
           </span>{" "}
           tu mascota es prioridad. Paseos seguros, divertidos y personalizados
@@ -48,27 +50,19 @@ export default function Hero() {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="relative md:w-1/2 mt-10 md:mt-0 flex justify-center"
       >
-        {/* Imagen modo claro */}
         <img
           src={heroDayCloud}
           alt="Paseo Amigo día"
           className="block dark:hidden rounded-3xl shadow-xl object-cover w-full max-w-lg"
-          onError={(e) => {
-            e.target.src = heroDayLocal;
-          }}
+          onError={(e) => (e.target.src = heroDayLocal)}
         />
-
-        {/* Imagen modo oscuro */}
         <img
           src={heroNightCloud}
           alt="Paseo Amigo noche"
           className="hidden dark:block rounded-3xl shadow-xl object-cover w-full max-w-lg"
-          onError={(e) => {
-            e.target.src = heroNightLocal;
-          }}
+          onError={(e) => (e.target.src = heroNightLocal)}
         />
 
-        {/* Badge inferior */}
         <div className="absolute bottom-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-md text-sm font-medium">
           +100 paseos felices 🌟
         </div>
