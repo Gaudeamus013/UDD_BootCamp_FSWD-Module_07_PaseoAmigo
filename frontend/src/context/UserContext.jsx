@@ -61,23 +61,31 @@ export function UserProvider({ children }) {
   // 🧭 Autenticación
   // ============================================================
 
-  async function register(data) {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await apiClient.post("/auth/register", data);
-      const info = res.data;
-      persist(info);
-      await loadUser();
-      return info;
-    } catch (err) {
-      console.error("Error en register:", err);
-      setError(err.response?.data?.message || err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+ async function register(name, email, password) {
+  try {
+    setLoading(true);
+    setError(null);
+
+    // Payload correcto en JSON
+    const payload = { name, email, password };
+
+    const res = await apiClient.post("/auth/register", payload, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const info = res.data;
+    persist(info);
+    await loadUser();
+    return info;
+  } catch (err) {
+    console.error("Error en register:", err);
+    setError(err.response?.data?.message || err.message);
+    throw err;
+  } finally {
+    setLoading(false);
   }
+}
+
 
   async function login(credentials) {
     try {
