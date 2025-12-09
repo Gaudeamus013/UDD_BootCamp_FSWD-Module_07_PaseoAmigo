@@ -34,6 +34,7 @@ import checkoutRoutes from "./routes/checkoutRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import walkTypeRoutes from "./routes/walkTypeRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 // ============================================================
 // 🧯 Middlewares de error
@@ -133,6 +134,7 @@ app.use("/api/checkout", checkoutRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/walktypes", walkTypeRoutes);
 app.use("/api/bookings", bookingRoutes); // ✅ única referencia válida
+app.use("/api/orders", orderRoutes);
 
 // ============================================================
 // 🧯 Manejo de Errores
