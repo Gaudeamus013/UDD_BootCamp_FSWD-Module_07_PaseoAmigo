@@ -121,7 +121,7 @@ export default function LoginPage() {
         <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
           ¿Aún no tienes una cuenta?{" "}
           <button
-            onClick={() => navigate("/register")}
+            onClick={() => navigate("/auth/register")}
             className="text-primary-light dark:text-primary-dark font-medium hover:underline"
           >
             Regístrate aquí

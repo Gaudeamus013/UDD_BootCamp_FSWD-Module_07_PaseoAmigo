@@ -32,15 +32,13 @@ const paypalOptions = {
 // 🚀 Renderización principal
 // ============================================================
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <PayPalScriptProvider options={paypalOptions}>
-        <UserProvider>
-          <CartProvider>
-            <RouterProvider router={router} />
-          </CartProvider>
-        </UserProvider>
-      </PayPalScriptProvider>
-    </ErrorBoundary>
-  </React.StrictMode>
+  <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <PayPalScriptProvider options={paypalOptions}>
+      <UserProvider>
+        <CartProvider>
+          <RouterProvider router={router} />
+        </CartProvider>
+      </UserProvider>
+    </PayPalScriptProvider>
+  </ErrorBoundary>
 );

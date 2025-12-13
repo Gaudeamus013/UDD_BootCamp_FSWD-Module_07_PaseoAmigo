@@ -10,8 +10,8 @@ import ToastAlert from "../components/ui/ToastAlert.jsx";
 import { motion } from "framer-motion";
 
 export default function Servicios() {
-  const { user } = useUser();
-  const isLoggedIn = !!user;
+  // Tomamos isLoggedIn directamente del contexto
+  const { isLoggedIn } = useUser();
 
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -87,23 +87,45 @@ export function UserProvider({ children }) {
 }
 
 
-  async function login(credentials) {
+  // 🧭 Login de usuario
+  // ----------------------------------------------------------------
+  // LoginPage llama: login(formData.email, formData.password)
+  // Devolvemos siempre { success, message, data? } para que
+  // la página pueda mostrar feedback claro.
+  // ----------------------------------------------------------------
+  async function login(email, password) {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiClient.post("/auth/login", credentials);
+
+      const payload = { email, password };
+
+      const res = await apiClient.post("/auth/login", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+
       const info = res.data;
-      persist(info);
-      await loadUser();
-      return info;
+      persist(info);      // Guarda tokens / userInfo en localStorage
+      await loadUser();   // Carga datos completos del usuario
+
+      return {
+        success: true,
+        message: "Has iniciado sesión correctamente.",
+        data: info,
+      };
     } catch (err) {
       console.error("Error en login:", err);
-      setError(err.response?.data?.message || err.message);
-      throw err;
+      const message =
+        err.response?.data?.message || "Error al iniciar sesión.";
+      setError(message);
+
+      return { success: false, message };
     } finally {
       setLoading(false);
     }
   }
+
+
 
   async function logout() {
     try {
