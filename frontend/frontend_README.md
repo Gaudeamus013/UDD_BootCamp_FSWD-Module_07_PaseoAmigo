@@ -46,7 +46,7 @@ Frontend SPA desarrollado con **React + Vite**, encargado de la experiencia de u
 
 ---
 
-## 🔍 SEO-lite (SPA)
+## 🔍 SEO-lite (SPA) / PROXIMAMENTE 
 
 Dado que el proyecto es una SPA sin SSR, se implementa un enfoque SEO-lite:
 
@@ -57,7 +57,7 @@ Dado que el proyecto es una SPA sin SSR, se implementa un enfoque SEO-lite:
 
 ---
 
-## 🧪 Testing (Preparado)
+## 🧪 Testing (Preparado) / PROXIMAMENTE
 
 - Estructura preparada para Playwright E2E.
 - Modo de pruebas sin uso de PayPal real (mock).
