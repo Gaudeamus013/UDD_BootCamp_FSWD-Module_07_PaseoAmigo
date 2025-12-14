@@ -1,248 +1,98 @@
+# 🐾 Paseo Amigo
 
-# 🐾 Paseo Amigo – MVP v1.0.1
+Paseo Amigo es una aplicación web **full‑stack** orientada a la gestión y contratación de servicios de paseo para mascotas, integrando autenticación de usuarios y un flujo de pago mediante **PayPal**.
 
-### 🚀 Proyecto Full Stack – Desarrollado por Reynaldo Javier Añasco Ruiz  
-**Bootcamp UDD – Módulo 07 | Fullstack Developer (Node.js + React + MongoDB)**
-
----
-
-## 📋 Descripción General
-
-**Paseo Amigo** es un MVP funcional de una plataforma web para la gestión de paseos de mascotas, que combina **frontend moderno con React y TailwindCSS**, un **backend Node.js/Express desplegado en Render**, y una **pasarela de pago PayPal Sandbox completamente integrada**.
-
-El sistema fue desarrollado como entregable final del Bootcamp Fullstack de la Universidad del Desarrollo, cumpliendo con los siguientes objetivos técnicos:
-
-- 🔐 Backend RESTful con autenticación JWT y conexión a MongoDB Atlas.  
-- 💳 Integración de pago real en entorno sandbox mediante PayPal SDK.  
-- ⚙️ Despliegue doble en Render (backend) y Vercel (frontend).  
-- 🎨 UI/UX profesional basada en el enfoque **Emergent UI** (estilo visual fluido, sin IA).  
-- 🌙 Implementación de modo claro/oscuro con transiciones suaves y microinteracciones.  
-- 📦 Configuración modular y documentación profesional (comentarios, estructura limpia).  
+El proyecto fue desarrollado con fines **académicos y demostrativos**, aplicando buenas prácticas de desarrollo frontend y backend, con foco en claridad de flujo, seguridad básica y trazabilidad.
 
 ---
 
-## 🧱 Arquitectura del Proyecto
+## 📌 Estado del Proyecto
 
-```
-📦 UDD_BootCamp_FSWD-Module_07_PaseoAmigo/
-├── backend/
-│   ├── config/
-│   │   └── db.js
-│   ├── routes/
-│   │   ├── authRoutes.js
-│   │   ├── checkoutRoutes.js
-│   │   ├── productRoutes.js
-│   │   └── userRoutes.js
-│   ├── middleware/
-│   │   └── errorMiddleware.js
-│   ├── server.js
-│   ├── package.json
-│   └── .env (Render)
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── experience/ExperienceSection.jsx
-│   │   │   └── ui/ThemeSwitch.jsx
-│   │   ├── pages/
-│   │   │   ├── LandingPage.jsx
-│   │   │   ├── GalleryPage.jsx
-│   │   │   ├── Servicios.jsx
-│   │   │   ├── CartPage.jsx
-│   │   │   ├── Checkout.jsx
-│   │   │   ├── Exito.jsx
-│   │   │   └── Cancelado.jsx
-│   │   ├── hooks/
-│   │   │   └── useScrollHeader.jsx
-│   │   ├── index.css
-│   │   ├── main.jsx
-│   │   └── App.jsx
-│   ├── public/
-│   │   └── assets/img/...
-│   ├── tailwind.config.js
-│   ├── vite.config.js
-│   └── .env.local (Vercel)
-│
-├── README.md
-└── .gitignore
-```
+✅ Funcional a nivel académico  
+✅ Flujo completo: selección de servicio → checkout → pago → confirmación  
+✅ Integración PayPal (Sandbox)  
+✅ Backend con persistencia y estados de negocio  
+🚧 Mejoras futuras: QA E2E, SEO avanzado, refactor controlado
+
+> **Nota:** El proyecto cumple con los requisitos académicos solicitados. Las mejoras planificadas apuntan a elevar el estándar hacia un entorno productivo.
 
 ---
 
-## 🌍 Despliegue
+## 🧱 Stack Tecnológico
 
-| Entorno | Plataforma | URL |
-|----------|-------------|-----|
-| **Frontend (Vite + React)** | Vercel | [https://paseoamigo.vercel.app](https://paseoamigo.vercel.app) |
-| **Backend (Node + Express)** | Render | [https://udd-bootcamp-fswd-module-07-paseoamigo.onrender.com](https://udd-bootcamp-fswd-module-07-paseoamigo.onrender.com) |
+### Frontend
+- React + Vite
+- React Router
+- Context API
+- PayPal JS SDK
+- SPA con SEO‑lite
 
----
-
-## ⚙️ Variables de Entorno
-
-### 🔹 Frontend (.env.local / .env.production)
-```env
-VITE_API_BASE_URL=https://udd-bootcamp-fswd-module-07-paseoamigo.onrender.com
-VITE_PAYPAL_CLIENT_ID=ATGKBCavyZ4jFORLIDm1pESsJR-LaQfRuOovuGDo8r_VCw-6CtU05nPzcefXjT6PQLGnTSnPLcF4udgJ
-VITE_PAYPAL_CURRENCY=USD
-VITE_CLOUDINARY_CLOUD_NAME=dmnxyqxcz
-VITE_CLOUDINARY_UPLOAD_PRESET=default
-```
-
-### 🔹 Backend (.env en Render)
-```env
-PORT=4000
-NODE_ENV=production
-CORS_ORIGIN=https://paseoamigo.vercel.app,https://udd-bootcamp-fswd-module-07-paseoamigo.onrender.com
-
-MONGO_URI=mongodb+srv://paseoamigo_user:<PASSWORD>@clusterpaseoamigo.za3zom.mongodb.net/
-
-JWT_SECRET=SuperSecretPaseoAmigo2025
-REFRESH_TOKEN_SECRET=SuperRefreshTokenPaseoAmigo2025
-
-PAYMENT_PROVIDER=paypal
-PAYPAL_MODE=sandbox
-PAYPAL_CLIENT_ID=ATGKBCavyZ4jFORLIDm1pESsJR-LaQfRuOovuGDo8r_VCw-6CtU05nPzcefXjT6PQLGnTSnPLcF4udgJ
-PAYPAL_CLIENT_SECRET=EEUBKfGSidJejoQXFK5_v9xp3WFdWXcNMC1T43q_EEj-gUjmyfvnfziMgnmTUIS2jTTT8QzDDlp4g3vI
-PAYPAL_CURRENCY=USD
-```
+### Backend
+- Node.js
+- Express
+- MongoDB
+- JWT (autenticación)
+- PayPal REST API + Webhooks
 
 ---
 
-## 💳 Integración PayPal (Sandbox)
+## 🚀 Cómo ejecutar el proyecto
 
-### Flujo
-1. El usuario selecciona servicio → pasa al **Carrito** → Checkout.
-2. El botón de PayPal (SDK v2 React) abre el popup sandbox.
-3. Tras completar el pago, la app redirige automáticamente:
-   - `/exito?orderId=<ID>` si el pago fue **completado**.
-   - `/cancelado` si el usuario canceló.
-4. El backend maneja la creación y captura de órdenes vía SDK oficial de PayPal.
+### Requisitos
+- Node.js 18 o superior
+- MongoDB local o en la nube
+- Cuenta PayPal Developer (Sandbox)
 
-### Endpoints Backend
-| Método | Ruta | Descripción |
-|---------|------|-------------|
-| `POST` | `/api/checkout/paypal/create-order` | Crea la orden y devuelve el ID |
-| `POST` | `/api/checkout/paypal/capture-order/:orderID` | Captura la orden aprobada |
-
----
-
-## 🧩 Stack Tecnológico
-
-| Área | Tecnología |
-|------|-------------|
-| **Frontend** | React 18, Vite, TailwindCSS, Framer Motion, Embla Carousel |
-| **Backend** | Node.js, Express, MongoDB Atlas, dotenv, morgan, cors |
-| **Autenticación** | JWT + Refresh Tokens |
-| **Pasarela de pago** | PayPal Checkout SDK (Sandbox) |
-| **Despliegue** | Vercel (frontend) + Render (backend) |
-| **Documentación API** | Swagger / OpenAPI (pendiente en producción) |
-
----
-
-## 🎨 UI/UX – Diseño Emergent UI
-
-La interfaz de **Paseo Amigo** sigue el enfoque **Emergent UI**, un estilo visual moderno basado en:
-
-- Transiciones fluidas (Framer Motion).
-- Uso de sombras suaves, bordes redondeados y microinteracciones.
-- Adaptabilidad visual (modo claro/oscuro automático).
-- Diseño emocional con íconos, emojis y tonos cálidos.  
-
-🟢 *No se integra ningún motor de IA. “Emergent UI” es puramente un término de estilo visual.*
-
----
-
-## 🧠 Hooks personalizados
-
-| Hook | Función |
-|------|----------|
-| `useScrollHeader` | Cambia el estilo del header al hacer scroll. |
-| `useLocalStorage` *(en versiones anteriores)* | Sincroniza estado con `localStorage`. |
-
----
-
-## 🔐 Seguridad y buenas prácticas
-
-- Variables sensibles gestionadas vía `.env` (no commitadas).  
-- CORS configurado dinámicamente según entorno.  
-- Helmet y Rate Limiting preparados para entorno productivo.  
-- Validación de tokens y manejo de errores globales (`errorMiddleware.js`).
-
----
-
-## 🧭 Rutas principales del Frontend
-
-| Ruta | Descripción |
-|------|--------------|
-| `/` | Landing page (servicios, misión, testimonios). |
-| `/servicios` | Descripción de planes Light, Full y Especial. |
-| `/gallery` | Galería dinámica Cloudinary. |
-| `/cart` | Carrito de compras. |
-| `/checkout` | Pasarela de pago (PayPal Sandbox). |
-| `/exito` | Confirmación de pago exitoso. |
-| `/cancelado` | Pago cancelado o fallido. |
-
----
-
-## 🧾 Scripts útiles
-
-### 🔹 En desarrollo local
+### Instalación general
 ```bash
-# Backend
-cd backend
-npm run dev
-
-# Frontend
-cd frontend
-npm run dev
+git clone <url-del-repositorio>
+cd paseo-amigo
 ```
 
-### 🔹 En producción
-```bash
-# Build frontend
-cd frontend
-npm run build
+Cada subproyecto (`frontend` y `backend`) posee su propio archivo README con instrucciones específicas.
+
+---
+
+## 📂 Estructura del Proyecto
+
+```text
+/
+├── frontend/        # Aplicación React (Vite)
+├── backend/         # API REST + lógica de negocio
+├── README.md        # Documentación general
 ```
 
 ---
 
-## 🧩 Versionado y ramas
+## 📄 Documentación Específica
 
-| Versión | Rama | Descripción |
-|----------|-------|-------------|
-| `v0.4` | `main` | Primera versión estable con landing funcional. |
-| `v1.0.0` | `ui-official` | Versión base MVP completa (UI + lógica PayPal). |
-| `v1.0.1` | `main` | MVP final ajustado, integración PayPal validada y sincronizada entre Render/Vercel. |
+- 📘 Frontend: `frontend/README.md`
+- 📕 Backend: `backend/README.md`
 
 ---
 
-## 🧭 Próximos pasos (Fase 2) | Post - Entrega
+## ⚠️ Consideraciones Importantes
 
-- Implementar autenticación de usuario y registro de cliente.  
-- Ampliar catálogo de servicios dinámicos.  
-- Añadir almacenamiento de órdenes y usuarios en MongoDB.  
-- Implementar dashboard administrativo y facturación.  
-- Integrar métricas y panel de seguimiento de paseos (GPS, mapas).
-
----
-
-## 👨‍💻 Autor
-
-**Reynaldo Javier Añasco Ruiz**  
-- Ingeniero Civil Informático – MBA  
-- Fullstack Developer (Bootcamp UDD)  
-- Profesional Regional RM – Subsecretaría de Educación Parvularia  
-📧 [reynaldo.anasco@gmail.com](mailto:reynaldo.anasco@gmail.com)  
-🌐 [LinkedIn](https://www.linkedin.com/in/reynaldo-anasco/)  
+- El archivo `.env` **no debe subirse al repositorio**
+- Usar siempre `.env.example` como referencia
+- El entorno de pago está configurado para **PayPal Sandbox**
+- No se recomienda usar este proyecto directamente en producción sin endurecer seguridad
 
 ---
 
-## 🏁 Licencia
+## 🎓 Contexto Académico
 
-Proyecto de uso académico bajo licencia MIT.  
-Desarrollado con fines educativos y demostrativos dentro del Bootcamp UDD.
+Este proyecto fue desarrollado como parte de un proceso formativo, priorizando:
+
+- Comprensión del flujo completo de una aplicación web
+- Separación clara frontend / backend
+- Integración de pagos de forma controlada
+- Buenas prácticas por sobre optimización prematura
 
 ---
 
-**© 2025 Paseo Amigo – Todos los derechos reservados.**
+## 📌 Autor
+
+Proyecto desarrollado por **Reynaldo Javier Añasco Ruiz**  
+Desarrollador Web Full‑Stack
+
