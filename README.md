@@ -66,8 +66,8 @@ Cada subproyecto (`frontend` y `backend`) posee su propio archivo README con ins
 
 ## 📄 Documentación Específica
 
-- 📘 Frontend: `frontend/README.md`
-- 📕 Backend: `backend/README.md`
+- 📘 Frontend: `frontend/frontend_README.md`
+- 📕 Backend: `backend/backend_README.md`
 
 ---
 
