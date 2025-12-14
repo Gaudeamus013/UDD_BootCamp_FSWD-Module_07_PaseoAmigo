@@ -53,7 +53,7 @@ Estos estados permiten trazabilidad e idempotencia.
 
 ---
 
-## 🔔 Webhook PayPal
+## 🔔 Webhook PayPal / PROXIMAMENTE
 
 Endpoint:
 ```http
