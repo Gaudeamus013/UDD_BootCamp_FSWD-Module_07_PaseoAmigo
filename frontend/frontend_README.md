@@ -1,6 +1,10 @@
+![Logo](https://github.com/Gaudeamus013/UDD_BootCamp_FSWD/blob/main/images/banner.png)
+
 # 🐾 Paseo Amigo – Frontend
 
-Frontend SPA desarrollado con **React + Vite**, encargado de la experiencia de usuario y del flujo completo de navegación y pago.
+Aplicación **SPA** desarrollada con **React + Vite**, responsable de la experiencia de usuario y del flujo completo de navegación y pago del proyecto Paseo Amigo.
+
+Este frontend consume la API del backend y se comunica con PayPal mediante el SDK oficial en modo **Sandbox**.
 
 ---
 
@@ -17,51 +21,53 @@ Frontend SPA desarrollado con **React + Vite**, encargado de la experiencia de u
 
 ## 🧭 Flujo de Navegación
 
-```text
-/servicios
-   ↓
-/checkout
-   ↓
-/payment
-   ↓
-/payment/success | /payment/cancel
-```
+/servicios  
+→ /checkout  
+→ /payment  
+→ /payment/success | /payment/cancel
 
 ---
 
 ## 🔐 Autenticación
 
-- El checkout y el pago requieren usuario autenticado.
-- Si el usuario no está logeado, se redirige a Login.
-- Tras autenticarse correctamente, el usuario vuelve al flujo de compra.
+- El flujo de **checkout y pago** está protegido.
+- Si el usuario no está autenticado, se redirige a la vista de login.
+- Tras iniciar sesión correctamente, el usuario vuelve al flujo de compra.
 
 ---
 
-## 💳 Integración PayPal
+## 💳 Flujo de Pago
 
-- Componente PayPal único.
-- `createOrder` genera la orden con monto dinámico.
-- `onApprove` captura el pago y redirige automáticamente.
-- Manejo explícito de estados: loading, success, cancel y error.
+- Integración con **PayPal Sandbox**.
+- Componente PayPal único (sin carga duplicada del SDK).
+- Estados controlados:
+  - loading
+  - success
+  - cancel
+  - error
+- Redirecciones automáticas post-pago.
 
 ---
 
-## 🔍 SEO-lite (SPA) / PROXIMAMENTE 
+## 🔍 SEO-lite (SPA)
 
-Dado que el proyecto es una SPA sin SSR, se implementa un enfoque SEO-lite:
+Dado que el proyecto es una SPA sin SSR, se implementa una estrategia SEO-lite:
 
-- Títulos y meta descripciones por ruta.
+- Títulos dinámicos por ruta.
+- Meta descripciones.
 - OpenGraph y Twitter Cards.
-- `robots.txt` y `sitemap.xml`.
+- robots.txt y sitemap.xml.
 - JSON-LD básico.
 
 ---
 
-## 🧪 Testing (Preparado) / PROXIMAMENTE
+## 🧪 Modo Evaluación
 
-- Estructura preparada para Playwright E2E.
-- Modo de pruebas sin uso de PayPal real (mock).
-- Tests orientados a smoke tests del flujo crítico.
+- El evaluador puede **registrar un usuario nuevo** directamente desde la interfaz.
+- El pago se simula mediante **PayPal Sandbox**.
+- Las credenciales de prueba y detalles del sandbox se documentan en:
+
+`backend_README.md`
 
 ---
 
@@ -76,4 +82,4 @@ npm run dev
 
 ## 📌 Notas
 
-Este frontend prioriza estabilidad y claridad del flujo por sobre optimizaciones prematuras.
+Este frontend prioriza estabilidad, claridad del flujo y separación de responsabilidades por sobre optimizaciones prematuras.

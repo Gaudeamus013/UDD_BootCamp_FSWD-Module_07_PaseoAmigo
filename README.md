@@ -1,20 +1,20 @@
+![Logo](https://github.com/Gaudeamus013/UDD_BootCamp_FSWD/blob/main/images/banner.png)
+
 # 🐾 Paseo Amigo
 
-Paseo Amigo es una aplicación web **full‑stack** orientada a la gestión y contratación de servicios de paseo para mascotas, integrando autenticación de usuarios y un flujo de pago mediante **PayPal**.
+Paseo Amigo es una aplicación web **full-stack** orientada a la gestión y contratación de servicios de paseo para mascotas, integrando autenticación de usuarios y un flujo de pago mediante **PayPal**.
 
-El proyecto fue desarrollado con fines **académicos y demostrativos**, aplicando buenas prácticas de desarrollo frontend y backend, con foco en claridad de flujo, seguridad básica y trazabilidad.
+El proyecto fue desarrollado con fines **académicos y demostrativos**, aplicando buenas prácticas de desarrollo frontend y backend, con foco en claridad de flujo, separación de responsabilidades y trazabilidad del proceso de pago.
 
 ---
 
 ## 📌 Estado del Proyecto
 
-✅ Funcional a nivel académico  
-✅ Flujo completo: selección de servicio → checkout → pago → confirmación  
-✅ Integración PayPal (Sandbox)  
-✅ Backend con persistencia y estados de negocio  
-🚧 Mejoras futuras: QA E2E, SEO avanzado, refactor controlado
-
-> **Nota:** El proyecto cumple con los requisitos académicos solicitados. Las mejoras planificadas apuntan a elevar el estándar hacia un entorno productivo.
+- ✅ Funcional a nivel académico  
+- ✅ Flujo completo: selección de servicio → checkout → pago → confirmación  
+- ✅ Integración PayPal (Sandbox)  
+- ✅ Manejo de estados de negocio  
+- 🚧 Mejoras futuras: QA E2E, SEO avanzado, CI/CD  
 
 ---
 
@@ -25,74 +25,75 @@ El proyecto fue desarrollado con fines **académicos y demostrativos**, aplicand
 - React Router
 - Context API
 - PayPal JS SDK
-- SPA con SEO‑lite
+- SPA con SEO-lite
 
 ### Backend
 - Node.js
 - Express
 - MongoDB
-- JWT (autenticación)
+- JWT
 - PayPal REST API + Webhooks
 
 ---
 
-## 🚀 Cómo ejecutar el proyecto
+## 🚀 Ejecución del Proyecto
 
-### Requisitos
-- Node.js 18 o superior
-- MongoDB local o en la nube
-- Cuenta PayPal Developer (Sandbox)
+Clonar el repositorio y posicionarse en la carpeta raíz:
 
-### Instalación general
-```bash
+```
 git clone <url-del-repositorio>
-cd paseo-amigo
+cd UDD_BootCamp_FSWD-Module_07_PaseoAmigo
 ```
 
-Cada subproyecto (`frontend` y `backend`) posee su propio archivo README con instrucciones específicas.
+Cada subproyecto cuenta con su propia documentación específica:
+
+- Frontend → `frontend_README.md`
+- Backend → `backend_README.md`
 
 ---
 
-## 📂 Estructura del Proyecto
+## 🧪 Modo Evaluación Académica
 
-```text
-/
-├── frontend/        # Aplicación React (Vite)
-├── backend/         # API REST + lógica de negocio
-├── README.md        # Documentación general
-```
+Este proyecto utiliza servicios externos en modo **Sandbox**, con fines exclusivamente académicos.
+
+Para la revisión del flujo completo:
+
+- El evaluador puede **registrar un usuario nuevo** directamente desde la aplicación.
+- El flujo de pago se realiza mediante **PayPal Sandbox**.
+- Las instrucciones y credenciales de prueba se encuentran documentadas en el archivo:
+
+`backend_README.md`
 
 ---
 
-## 📄 Documentación Específica
+## 🔎 Orden Sugerido de Revisión
 
-- 📘 Frontend: `frontend/frontend_README.md`
-- 📕 Backend: `backend/backend_README.md`
+1. Levantar backend y frontend
+2. Registrar un usuario
+3. Iniciar sesión
+4. Seleccionar un servicio
+5. Revisar carrito
+6. Acceder a checkout
+7. Simular pago con PayPal Sandbox
+8. Confirmar creación de la reserva
 
 ---
 
 ## ⚠️ Consideraciones Importantes
 
-- El archivo `.env` **no debe subirse al repositorio**
-- Usar siempre `.env.example` como referencia
-- El entorno de pago está configurado para **PayPal Sandbox**
-- No se recomienda usar este proyecto directamente en producción sin endurecer seguridad
+- El archivo `.env` **no se incluye** en el repositorio.
+- Usar siempre `.env.example` como referencia.
+- El proyecto **no está configurado para producción**.
 
 ---
 
 ## 🎓 Contexto Académico
 
-Este proyecto fue desarrollado como parte de un proceso formativo, priorizando:
-
-- Comprensión del flujo completo de una aplicación web
-- Separación clara frontend / backend
-- Integración de pagos de forma controlada
-- Buenas prácticas por sobre optimización prematura
+Proyecto desarrollado como parte del proceso formativo del **Bootcamp Full Stack Web Development**, priorizando la comprensión integral del flujo de una aplicación web moderna.
 
 ---
 
-## 📌 Autor
+## 👤 Autor
 
-Proyecto desarrollado por **Reynaldo Javier Añasco Ruiz**  
-Desarrollador Web Full‑Stack
-
+**Reynaldo Javier Añasco Ruiz**  
+Desarrollador Web Full-Stack
