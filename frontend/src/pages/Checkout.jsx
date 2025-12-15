@@ -1,10 +1,10 @@
 // ============================================================
-// 💳 Checkout.jsx — Flujo de pago con PayPal
+// 💳 Checkout.jsx — Flujo de pago con PayPal (Defensive Version)
 // Paseo Amigo · Integrado con apiClient (JWT + Refresh)
 // ============================================================
 // - Compatible con PayPalScriptProvider global (main.jsx)
 // - NO carga el SDK dos veces
-// - Crea orden en backend + captura orden + crea reserva
+// - Validación defensiva ante datos corruptos
 // ============================================================
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -19,19 +19,29 @@ import ToastAlert from "../components/ui/ToastAlert.jsx";
 const PAYPAL_CURRENCY = import.meta.env.VITE_PAYPAL_CURRENCY || "USD";
 
 // ============================================================
-// 🧮 Hook: cálculo de totales CLP y USD estimado
+// 🧮 Hook: cálculo defensivo de totales CLP y USD
 // ============================================================
 function useTotals(cart) {
-  const totalClp = useMemo(
-    () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [cart]
-  );
+  const totalClp = useMemo(() => {
+    if (!Array.isArray(cart)) return 0;
+
+    return cart.reduce((sum, item) => {
+      const price = Number(item?.price ?? 0);
+      const quantity = Number(item?.quantity ?? 0);
+
+      const safePrice = Number.isFinite(price) ? price : 0;
+      const safeQty = Number.isFinite(quantity) ? quantity : 0;
+
+      return sum + safePrice * safeQty;
+    }, 0);
+  }, [cart]);
 
   const exchangeRate = 0.0011;
-  const priceUSD = useMemo(
-    () => Number((totalClp * exchangeRate).toFixed(2)),
-    [totalClp]
-  );
+
+  const priceUSD = useMemo(() => {
+    const usd = totalClp * exchangeRate;
+    return Number.isFinite(usd) ? Number(usd.toFixed(2)) : 0;
+  }, [totalClp]);
 
   return { totalClp, priceUSD };
 }
@@ -50,7 +60,6 @@ function BookingForm({
 }) {
   return (
     <div className="flex flex-col gap-4 mb-6">
-      {/* Tipo de servicio */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium dark:text-gray-200">
           Tipo de servicio
@@ -66,7 +75,6 @@ function BookingForm({
         </select>
       </div>
 
-      {/* Fecha y hora */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium dark:text-gray-200">
           Fecha y hora del paseo
@@ -79,7 +87,6 @@ function BookingForm({
         />
       </div>
 
-      {/* Duración */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium dark:text-gray-200">
           Duración (minutos)
@@ -92,7 +99,6 @@ function BookingForm({
         />
       </div>
 
-      {/* Notas */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium dark:text-gray-200">
           Notas adicionales
@@ -110,7 +116,7 @@ function BookingForm({
 }
 
 // ============================================================
-// 💳 Subcomponente: PayPal Buttons (sin ScriptProvider local)
+// 💳 Subcomponente: PayPal Checkout
 // ============================================================
 function PayPalCheckout({
   cart,
@@ -126,9 +132,12 @@ function PayPalCheckout({
   const [isCapturing, setIsCapturing] = useState(false);
 
   const isReadyToPay =
-    cart.length > 0 && dateTime && durationMins > 0 && priceUSD > 0;
+    Array.isArray(cart) &&
+    cart.length > 0 &&
+    dateTime &&
+    durationMins > 0 &&
+    priceUSD > 0;
 
-  // Crear orden
   const handleCreateOrder = async () => {
     try {
       setIsCreatingOrder(true);
@@ -147,7 +156,6 @@ function PayPalCheckout({
     }
   };
 
-  // Capturar y crear reserva
   const handleApprove = async (data) => {
     try {
       setIsCapturing(true);
@@ -222,14 +230,12 @@ export default function Checkout() {
 
   const { totalClp, priceUSD } = useTotals(cart);
 
-  // Ajustar duración
   useEffect(() => {
     if (serviceType === "paseo-30") setDurationMins(30);
     if (serviceType === "paseo-60") setDurationMins(60);
     if (serviceType === "full") setDurationMins(90);
   }, [serviceType]);
 
-  // Cargar carrito
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) {
@@ -260,124 +266,124 @@ export default function Checkout() {
   };
 
   return (
-  <section className="min-h-screen flex flex-col items-center py-16 px-6 bg-gradient-to-b from-transparent to-white/5 dark:to-black/20 transition-colors">
-    <ToastAlert message={message} type={type} />
+    <section className="min-h-screen flex flex-col items-center py-16 px-6 bg-gradient-to-b from-transparent to-white/5 dark:to-black/20 transition-colors">
+      <ToastAlert message={message} type={type} />
 
-    <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-gray-100">
-      Finalizar compra 💳
-    </h1>
+      <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-gray-100">
+        Finalizar compra 💳
+      </h1>
 
-    {cart.length === 0 && !createdBooking ? (
-      // 🧺 Estado: carrito vacío y sin reserva creada
-      <div className="text-center text-gray-700 dark:text-gray-300">
-        <p className="mb-4">Tu carrito está vacío</p>
-        <button
-          onClick={() => navigate("/servicios")}
-          className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition"
-        >
-          Ver servicios
-        </button>
-      </div>
-    ) : (
-      <div className="max-w-3xl w-full bg-white/70 dark:bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-8">
-        {/* 👇 Si AÚN NO hay reserva creada: mostramos todo el flujo de pago */}
-        {!createdBooking && (
-          <>
-            <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-              Resumen del pedido
-            </h2>
+      {cart.length === 0 && !createdBooking ? (
+        <div className="text-center text-gray-700 dark:text-gray-300">
+          <p className="mb-4">Tu carrito está vacío</p>
+          <button
+            onClick={() => navigate("/servicios")}
+            className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition"
+          >
+            Ver servicios
+          </button>
+        </div>
+      ) : (
+        <div className="max-w-3xl w-full bg-white/70 dark:bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-8">
+          {!createdBooking && (
+            <>
+              <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
+                Resumen del pedido
+              </h2>
 
-            {/* Resumen del carrito */}
-            <div className="flex flex-col gap-4 mb-6">
-              {cart.map((item) => (
-                <div
-                  key={item._id || `${item.name}-${item.price}`}
-                  className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-3"
-                >
-                  <span className="text-gray-900 dark:text-gray-100 font-medium">
-                    {item.name} ({item.quantity}x)
-                  </span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                    {(item.price * item.quantity).toLocaleString("es-CL")} CLP
-                  </span>
-                </div>
-              ))}
+              <div className="flex flex-col gap-4 mb-6">
+                {cart.map((item, idx) => {
+                  const price = Number(item?.price ?? 0);
+                  const qty = Number(item?.quantity ?? 0);
+
+                  const safePrice = Number.isFinite(price) ? price : 0;
+                  const safeQty = Number.isFinite(qty) ? qty : 0;
+                  const lineTotal = safePrice * safeQty;
+
+                  return (
+                    <div
+                      key={item?._id ?? `${item?.name}-${idx}`}
+                      className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-3"
+                    >
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">
+                        {item?.name ?? "Servicio"} ({safeQty}x)
+                      </span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                        {lineTotal.toLocaleString("es-CL")} CLP
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex justify-between items-center text-xl font-semibold border-t border-gray-200 dark:border-gray-700 pt-4 mb-2">
+                <span>Total</span>
+                <span className="text-emerald-600 dark:text-emerald-400">
+                  {totalClp.toLocaleString("es-CL")} CLP
+                </span>
+              </div>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                Referencia en USD (estimado):{" "}
+                <span className="font-semibold">
+                  {priceUSD.toFixed(2)} {PAYPAL_CURRENCY}
+                </span>
+              </p>
+
+              <BookingForm
+                serviceType={serviceType}
+                setServiceType={setServiceType}
+                dateTime={dateTime}
+                setDateTime={setDateTime}
+                durationMins={durationMins}
+                notes={notes}
+                setNotes={setNotes}
+              />
+
+              <PayPalCheckout
+                cart={cart}
+                serviceType={serviceType}
+                dateTime={dateTime}
+                durationMins={durationMins}
+                priceUSD={priceUSD}
+                notes={notes}
+                onSuccess={handleSuccess}
+                onError={handleError}
+              />
+            </>
+          )}
+
+          {createdBooking && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 dark:bg-emerald-900/20 p-4 text-sm text-gray-800 dark:text-gray-100">
+              <h3 className="font-semibold mb-2">Reserva confirmada ✅</h3>
+              <p>
+                <span className="font-medium">Servicio:</span>{" "}
+                {createdBooking.serviceType}
+              </p>
+              <p>
+                <span className="font-medium">Fecha:</span>{" "}
+                {new Date(createdBooking.date).toLocaleString("es-CL")}
+              </p>
+              <p>
+                <span className="font-medium">Duración:</span>{" "}
+                {createdBooking.durationMins} minutos
+              </p>
+              <p>
+                <span className="font-medium">Precio (USD):</span>{" "}
+                {createdBooking.priceUSD?.toFixed?.(2) ??
+                  createdBooking.priceUSD}
+              </p>
+
+              <button
+                onClick={() => navigate("/servicios")}
+                className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition"
+              >
+                Volver a servicios
+              </button>
             </div>
-
-            {/* Total + info en USD estimado */}
-            <div className="flex justify-between items-center text-xl font-semibold border-t border-gray-200 dark:border-gray-700 pt-4 mb-2">
-              <span>Total</span>
-              <span className="text-emerald-600 dark:text-emerald-400">
-                {total.toLocaleString("es-CL")} CLP
-              </span>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
-              Referencia en USD (estimado):{" "}
-              <span className="font-semibold">
-                {priceUSD.toFixed(2)} {PAYPAL_CURRENCY}
-              </span>
-              . El monto exacto se calcula en el servidor según el tipo de
-              cambio configurado.
-            </p>
-
-            {/* Formulario de datos de reserva */}
-            <BookingForm
-              serviceType={serviceType}
-              setServiceType={setServiceType}
-              dateTime={dateTime}
-              setDateTime={setDateTime}
-              durationMins={durationMins}
-              notes={notes}
-              setNotes={setNotes}
-            />
-
-            {/* Zona de pago con PayPal */}
-            <PayPalCheckout
-              cart={cart}
-              serviceType={serviceType}
-              dateTime={dateTime}
-              durationMins={durationMins}
-              priceUSD={priceUSD}
-              notes={notes}
-              onSuccess={handleSuccess}
-              onError={handleError}
-            />
-          </>
-        )}
-
-        {/* ✅ Si YA hay reserva creada: solo mostramos el resumen de éxito */}
-        {createdBooking && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 dark:bg-emerald-900/20 p-4 text-sm text-gray-800 dark:text-gray-100">
-            <h3 className="font-semibold mb-2">Reserva confirmada ✅</h3>
-            <p>
-              <span className="font-medium">Servicio:</span>{" "}
-              {createdBooking.serviceType}
-            </p>
-            <p>
-              <span className="font-medium">Fecha:</span>{" "}
-              {new Date(createdBooking.date).toLocaleString("es-CL")}
-            </p>
-            <p>
-              <span className="font-medium">Duración:</span>{" "}
-              {createdBooking.durationMins} minutos
-            </p>
-            <p>
-              <span className="font-medium">Precio (USD):</span>{" "}
-              {createdBooking.priceUSD?.toFixed?.(2) ??
-                createdBooking.priceUSD}
-            </p>
-
-            <button
-              onClick={() => navigate("/servicios")}
-              className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition"
-            >
-              Volver a servicios
-            </button>
-          </div>
-        )}
-      </div>
-    )}
-  </section>
-);
-
+          )}
+        </div>
+      )}
+    </section>
+  );
 }
