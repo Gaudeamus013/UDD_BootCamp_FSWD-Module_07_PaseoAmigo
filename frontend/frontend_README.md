@@ -2,9 +2,27 @@
 
 # 🐾 Paseo Amigo – Frontend
 
-Aplicación **SPA** desarrollada con **React + Vite**, responsable de la experiencia de usuario y del flujo completo de navegación y pago del proyecto Paseo Amigo.
+Aplicación **SPA** desarrollada con React y Vite, encargada de la experiencia de usuario y del flujo de compra.
 
-Este frontend consume la API del backend y se comunica con PayPal mediante el SDK oficial en modo **Sandbox**.
+---
+
+## 📌 Estado del Frontend
+
+### ✔️ Implementado
+
+- Navegación SPA con React Router
+- Protección de rutas (checkout / pago)
+- Carrito de compras
+- Integración PayPal Sandbox
+- Manejo de estados UI (loading, success, error)
+- Confirmación visual de reserva
+
+### 🚧 Planificado (Etapa Posterior)
+
+- SEO avanzado (beyond SEO-lite)
+- Tests E2E (Playwright)
+- Mejoras de accesibilidad
+- Optimización de performance
 
 ---
 
@@ -15,7 +33,6 @@ Este frontend consume la API del backend y se comunica con PayPal mediante el SD
 - React Router
 - Context API
 - PayPal JS SDK
-- react-helmet-async (SEO-lite)
 
 ---
 
@@ -28,46 +45,11 @@ Este frontend consume la API del backend y se comunica con PayPal mediante el SD
 
 ---
 
-## 🔐 Autenticación
-
-- El flujo de **checkout y pago** está protegido.
-- Si el usuario no está autenticado, se redirige a la vista de login.
-- Tras iniciar sesión correctamente, el usuario vuelve al flujo de compra.
-
----
-
-## 💳 Flujo de Pago
-
-- Integración con **PayPal Sandbox**.
-- Componente PayPal único (sin carga duplicada del SDK).
-- Estados controlados:
-  - loading
-  - success
-  - cancel
-  - error
-- Redirecciones automáticas post-pago.
-
----
-
-## 🔍 SEO-lite (SPA)
-
-Dado que el proyecto es una SPA sin SSR, se implementa una estrategia SEO-lite:
-
-- Títulos dinámicos por ruta.
-- Meta descripciones.
-- OpenGraph y Twitter Cards.
-- robots.txt y sitemap.xml.
-- JSON-LD básico.
-
----
-
 ## 🧪 Modo Evaluación
 
-- El evaluador puede **registrar un usuario nuevo** directamente desde la interfaz.
-- El pago se simula mediante **PayPal Sandbox**.
-- Las credenciales de prueba y detalles del sandbox se documentan en:
-
-`backend_README.md`
+- El evaluador puede crear un usuario directamente desde la UI.
+- El flujo de pago utiliza PayPal Sandbox.
+- Las credenciales se documentan en `backend_README.md`.
 
 ---
 
@@ -82,4 +64,4 @@ npm run dev
 
 ## 📌 Notas
 
-Este frontend prioriza estabilidad, claridad del flujo y separación de responsabilidades por sobre optimizaciones prematuras.
+Frontend desarrollado con foco académico, priorizando estabilidad del flujo.
